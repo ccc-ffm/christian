@@ -82,8 +82,13 @@ class KeyFunctions():
 
     def ChangeKeyholders(self,channel,cb,oldholder,newholder):
         """This changes the channel topic"""
-        self.keyholders.remove(oldholder)
-        self.keyholders.add(newholder)
+        if oldholder in self.keyholders:
+            self.keyholders[self.keyholders.index(oldholder)] = newholder
+            self.ListKeys(channel,cb)
+            return(True)
+        else:
+            cb.say(channel, oldholder+ " has no key, better luck next time!")
+            return(False)
 
 class InternBot(irc.IRCClient):
     nickname = 'fred'
@@ -120,7 +125,10 @@ class InternBot(irc.IRCClient):
         msg = message.split(" ")
 
         if msg[0] == "!keys":
-            self.key.ListKeys(channel,self)
+            if len(msg) == 3:
+                self.key.ChangeKeyholders(channel, self, msg[1], msg[2])
+            else:
+                self.key.ListKeys(channel,self)
         elif msg[0] == "!donnerstag":
             self.service.Donnerstag(channel,self)
         elif msg[0] == "!darkwing":
