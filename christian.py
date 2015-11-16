@@ -10,7 +10,12 @@ from twisted.internet import reactor, protocol, ssl
 
 #system imports
 import sys,os,random
+from datetime import datetime
 
+
+class HQ():
+    #TODO: Should be persistent and set on startup
+    isopen = False
 
 
 class EasterEggs():
@@ -70,6 +75,7 @@ class ServiceFunctions():
 
 
 class KeyFunctions():
+    hq = HQ ()
 
     def __init__(self):
         self.keyholders = []
@@ -86,13 +92,26 @@ class KeyFunctions():
         keyMessage += ", ".join(self.keyholders)
         cb.say(channel,keyMessage)
 
-    def OpenHQ(self,arg,channel,cb):
+    def OpenHQ(self,channel,cb):
         """This changes the channel topic"""
-        foo = "bar"
+        print "Open"
+        if self.hq.isopen == False:
+            self.hq.isopen = True
+            #Get Time:
+            time = datetime.now().strftime('%d-%m-%Y %H:%M')
+            cb.say(channel,"HQ is open since: " + time)
+            #Set Topic
+            cb.topic(channel,"HQ is open since: " + time)
 
-    def CloseHQ(self,arg,channel,cb):
+    def CloseHQ(self,channel,cb):
+        print "Close"
         """This changes the channel topic"""
-        foo = "bar"
+        if self.hq.isopen == True:
+            self.hq.isopen = False
+            cb.say(channel, "HQ is closed!")
+            cb.topic(channel,"HQ is closed!")
+            #Set Topic
+
 
     def ChangeKeyholders(self,channel,cb,oldholder,newholder):
         """This changes the channel topic"""
@@ -113,7 +132,7 @@ class KeyFunctions():
             return(False)
 
 class InternBot(irc.IRCClient):
-    nickname = 'christian'
+    nickname = 'dieter'
 
     """Action Objects"""
     key = KeyFunctions()
@@ -138,9 +157,6 @@ class InternBot(irc.IRCClient):
     def alterCollidedNick(self, nickname):
         return nickname+'_'
 
-    def settopic(self, topic):
-        self.topic(topic)
-
     def privmsg(self, user, channel, message):
         """This is called on any message seen in the given channel"""
         nick, _, host = user.partition('!')
@@ -159,6 +175,10 @@ class InternBot(irc.IRCClient):
             self.eggs.Balu(channel,self)
         elif msg[0] == "!raspel":
             self.eggs.Raspel(channel,self)
+        elif msg[0] == "!open":
+            self.key.OpenHQ(channel,self)
+        elif msg[0] == "!close":
+            self.key.CloseHQ(channel,self)
 
 
 class BotFactory(protocol.ClientFactory):
@@ -169,7 +189,7 @@ class BotFactory(protocol.ClientFactory):
     protocol = InternBot
 
     def __init__(self, channel):
-        self.channel = 'gnarplong' #channel
+        self.channel = 'testgnarplong' #channel
 
 
     def clientConnectionLost(self, connector, reason):
