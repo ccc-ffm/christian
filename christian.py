@@ -34,22 +34,33 @@ class EasterEggs():
         file.readline()
 
         #this will return the next (complete) line from the file
-        return file.readline()
+        line = file.readline()
+        file.close()
+        return line
+
+
+    def GetURL(self,filename):
+        file = open(filename,'r')
+        url = file.readline()
+        file.close()
+        return url
+
 
     def DarkWing(self,channel,cb):
-        filename="./mylines/darkwing.txt"
+        filename = "./mylines/darkwing.txt"
         myline = self.GetRandomLine(filename)
         cb.say(channel,myline)
 
     def Balu(self,channel,cb):
-        filename="./mylines/balu.txt"
+        filename = "./mylines/balu.txt"
         myline = self.GetRandomLine(filename)
         cb.say(channel,myline)
 
-    def Press(self):
+    def Raspel(self,channel,cb):
         #TODO: Read from file
-        url="http://ccc-ffm.de"
-        return url
+        filename = "./myurls/raspel.url"
+        url = self.GetURL(filename)
+        cb.say(channel,url)
 
 class ServiceFunctions():
 
@@ -91,7 +102,7 @@ class KeyFunctions():
             return(False)
 
 class InternBot(irc.IRCClient):
-    nickname = 'fred'
+    nickname = 'christian'
 
     """Action Objects"""
     key = KeyFunctions()
@@ -135,6 +146,9 @@ class InternBot(irc.IRCClient):
             self.eggs.DarkWing(channel,self)
         elif msg[0] == "!balu":
             self.eggs.Balu(channel,self)
+        elif msg[0] == "!raspel":
+            self.eggs.Raspel(channel,self)
+
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
