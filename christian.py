@@ -12,15 +12,11 @@ from twisted.internet import reactor, protocol, ssl
 import sys,os,random
 from datetime import datetime
 
-<<<<<<< HEAD
 
 class HQ():
     #TODO: Should be persistent and set on startup
     isopen = False
 
-
-=======
->>>>>>> 929e829bc51b78d3a7159f4edd32eb22748e4556
 class EasterEggs():
 
     def GetRandomLine(self,filename):
