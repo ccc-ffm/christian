@@ -15,13 +15,12 @@ import sys,os,random
 
 class EasterEggs():
 
-    def DarkWing(self,channel,cb):
-        #TODO: Random selection from file
+    def GetRandomLine(self,filename):
+
         #Random Selection from Jonathan Kupferman:
         #http://www.regexprn.com/2008/11/read-random-line-in-large-file-in.html
         #Open the file:
 
-        filename="./mylines/darkwing.txt"
         file = open(filename,'r')
 
         #Get the total file size
@@ -35,15 +34,17 @@ class EasterEggs():
         file.readline()
 
         #this will return the next (complete) line from the file
-        line = file.readline()
+        return file.readline()
 
-        #here is your random line in the file
-        cb.say(channel,line)
+    def DarkWing(self,channel,cb):
+        filename="./mylines/darkwing.txt"
+        myline = self.GetRandomLine(filename)
+        cb.say(channel,myline)
 
-    def Balu(self):
-        #TODO: Random selection from file
-        msg = "Balu"
-        return msg
+    def Balu(self,channel,cb):
+        filename="./mylines/balu.txt"
+        myline = self.GetRandomLine(filename)
+        cb.say(channel,myline)
 
     def Press(self):
         #TODO: Read from file
@@ -131,6 +132,8 @@ class InternBot(irc.IRCClient):
                 self.service.Donnerstag(channel,self)
             elif m == "!darkwing":
                 self.eggs.DarkWing(channel,self)
+            elif m == "!balu":
+                self.eggs.Balu(channel,self)
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
