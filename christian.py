@@ -30,9 +30,11 @@ class EasterEggs():
 
 class ServiceFunctions():
 
-    def Donnerstag(self):
+    def Donnerstag(self,arg,channel,cb):
         #TODO: Read from file
         msg = "Donnerstag"
+        cb.say(channel,"Wir treffen uns immer Donnerstags um 19:00 Uhr in Bockenheim in unserem Hackquarter in der Häuser Gasse 2")
+        print("Donnerstag")
         return msg
 
 
@@ -54,7 +56,7 @@ class KeyFunctions():
     def ChangeKeyholders(self,oldholder,newholder):
         """This changes the channel topic"""
         self.keyholders.remove(oldholder)
-        self.keyholders.remove(newholder)
+        self.keyholders.add(newholder)
 
 class InternBot(irc.IRCClient):
     nickname = 'christian'
@@ -62,10 +64,12 @@ class InternBot(irc.IRCClient):
     """Action Objects"""
     key = KeyFunctions()
     eggs = EasterEggs()
+    service = ServiceFunctions()
 
     """Function Dispatcher"""
     dispatch = {
-            '!test':key.ListKeys
+            '!test':key.ListKeys,
+            '!donnerstag':service.Donnerstag,
             }
 
     def connectionMade(self):
