@@ -9,14 +9,36 @@ from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, ssl
 
 #system imports
-import sys
+import sys,os,random
+
+
 
 class EasterEggs():
 
-    def DarkWing(self):
+    def DarkWing(self,arg,channel,cb):
         #TODO: Random selection from file
-        msg = "DarkWing"
-        return msg
+        #Random Selection from Jonathan Kupferman:
+        #http://www.regexprn.com/2008/11/read-random-line-in-large-file-in.html
+        #Open the file:
+        filename="./mylines/darkwing.txt"
+        file = open(filename,'r')
+        print "hello"
+        #Get the total file size
+        file_size = os.stat(filename)[6]
+
+        #seek to a place in the file which is a random distance away
+        #Mod by file size so that it wraps around to the beginning
+        file.seek((file.tell()+random.randint(0,file_size-1))%file_size)
+
+        #dont use the first readline since it may fall in the middle of a line
+        file.readline()
+
+        #this will return the next (complete) line from the file
+        line = file.readline()
+
+        #here is your random line in the file
+        print line
+        cb.say(channel,line)
 
     def Balu(self):
         #TODO: Random selection from file
@@ -70,6 +92,7 @@ class InternBot(irc.IRCClient):
     dispatch = {
             '!test':key.ListKeys,
             '!donnerstag':service.Donnerstag,
+            '!darkwing':eggs.DarkWing,
             }
 
     def connectionMade(self):
