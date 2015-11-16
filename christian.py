@@ -11,8 +11,6 @@ from twisted.internet import reactor, protocol, ssl
 #system imports
 import sys,os,random
 
-
-
 class EasterEggs():
 
     def GetRandomLine(self,filename):
@@ -68,6 +66,20 @@ class ServiceFunctions():
         #TODO: Read from file
         cb.say(channel,"Wir treffen uns immer Donnerstags um 19:00 Uhr in Bockenheim in unserem Hackquarter in der Häuser Gasse 2")
 
+    def Help(self, user, channel, cb):
+        if channel[1:] == factory.getChannel():
+            helpText = """
+Help ahead, my lost sailor!
+You'll find the desired information in teh webz:
+https://wiki.ccc-ffm.de/
+"""
+        else:
+            helpText = """
+I'd like to help you but from where are you talking to me, and why?
+You'll find some help right here:
+https://wiki.ccc-ffm.de/
+"""
+        cb.msg(user, helpText, 120)
 
 class KeyFunctions():
 
@@ -95,8 +107,7 @@ class KeyFunctions():
         foo = "bar"
 
     def ChangeKeyholders(self,channel,cb,oldholder,newholder):
-        """This changes the channel topic"""
-        print("change keys")
+        """ Hand one key from an holder to another one """
         if newholder in self.keyholders:
             cb.say(channel, "Noooooo! No more than one key for "+newholder+"!")
             return(False)
@@ -113,7 +124,8 @@ class KeyFunctions():
             return(False)
 
 class InternBot(irc.IRCClient):
-    nickname = 'christian'
+    nickname = 'fred'
+    channelIntern = "#testgnarplong"
 
     """Action Objects"""
     key = KeyFunctions()
@@ -145,7 +157,11 @@ class InternBot(irc.IRCClient):
         """This is called on any message seen in the given channel"""
         nick, _, host = user.partition('!')
         msg = message.split(" ")
+        if msg[0] == "!help":
+            self.service.Help(nick, channel, self)
 
+        if channel[1:] != factory.getChannel():
+            return(False)
         if msg[0] == "!keys":
             if len(msg) == 3:
                 self.key.ChangeKeyholders(channel, self, msg[1], msg[2])
@@ -160,7 +176,6 @@ class InternBot(irc.IRCClient):
         elif msg[0] == "!raspel":
             self.eggs.Raspel(channel,self)
 
-
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
     A new protocol instance will be created each time we connect to the server.
@@ -169,7 +184,7 @@ class BotFactory(protocol.ClientFactory):
     protocol = InternBot
 
     def __init__(self, channel):
-        self.channel = 'gnarplong' #channel
+        self.channel = 'testgnarplong' #channel
 
 
     def clientConnectionLost(self, connector, reason):
@@ -179,6 +194,9 @@ class BotFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         print ("connection failed: %s", reason)
         reactor.stop()
+
+    def getChannel(self):
+        return(self.channel)
 
 if __name__ == '__main__':
     #create intern
