@@ -38,21 +38,21 @@ class ServiceFunctions():
 
 class KeyFunctions():
 
-    #keyholders['']
-    #def __init__(self):
-        #TODO: Read Keyholders from Channel Topic
-     #   keyholders['']
 
-    def ListKeys(self,arg):
+    def ListKeys(self,arg,channel,cb):
         print("ListKeys")
+        cb.say(channel,"ListKeys")
 
-    def OpenHQ(self,arg):
-        fo = "bar"
+    def OpenHQ(self,arg,channel,cb):
+        """This changes the channel topic"""
+        foo = "bar"
 
-    def CloseHQ(self,arg):
+    def CloseHQ(self,arg,channel,cb):
+        """This changes the channel topic"""
         foo = "bar"
 
     def ChangeKeyholders(self,oldholder,newholder):
+        """This changes the channel topic"""
         self.keyholders.remove(oldholder)
         self.keyholders.remove(newholder)
 
@@ -106,7 +106,7 @@ class InternBot(irc.IRCClient):
         nick, _, host = user.partition('!')
         message = message.strip()
 
-        self.dispatch[message]("test")
+        self.dispatch[message]("test",channel,self)
 
 
 class BotFactory(protocol.ClientFactory):
