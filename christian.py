@@ -59,10 +59,17 @@ class ServiceFunctions():
 
 class KeyFunctions():
 
+    def __init__(self):
+        self.keyholders = ["max", "gnom", "test"]
 
     def ListKeys(self,channel,cb):
+        """List current holders of hq keys"""
+        #TODO make keyholders persistant
+
         print("ListKeys")
-        cb.say(channel,"ListKeys")
+        keyMessage = "All the keys are belong to: "
+        keyMessage += ", ".join(self.keyholders)
+        cb.say(channel,keyMessage)
 
     def OpenHQ(self,arg,channel,cb):
         """This changes the channel topic"""
@@ -72,13 +79,13 @@ class KeyFunctions():
         """This changes the channel topic"""
         foo = "bar"
 
-    def ChangeKeyholders(self,oldholder,newholder):
+    def ChangeKeyholders(self,channel,cb,oldholder,newholder):
         """This changes the channel topic"""
         self.keyholders.remove(oldholder)
         self.keyholders.add(newholder)
 
 class InternBot(irc.IRCClient):
-    nickname = 'christian'
+    nickname = 'fred'
 
     """Action Objects"""
     key = KeyFunctions()
@@ -100,19 +107,6 @@ class InternBot(irc.IRCClient):
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
 
-    def privmsg(self, user, channel, msg):
-        """This will get called when the bot receives a message."""
-
-        # Check to see if they're sending me a private message
-        if channel == self.nickname:
-            msg = "Wer flüstert lügt ;)"
-            self.msg(user, msg)
-
-        # Otherwise check to see if it is a message directed at me
-        if msg.startswith(self.nickname + ":"):
-            msg = "I am a Bot, lower your shields and surrender your ships."
-            self.msg(channel, msg)
-
     def alterCollidedNick(self, nickname):
         return nickname+'_'
 
@@ -120,17 +114,18 @@ class InternBot(irc.IRCClient):
         self.topic(topic)
 
     def privmsg(self, user, channel, message):
+        """This is called on any message seen in the given channel"""
         nick, _, host = user.partition('!')
         msg = message.split(" ")
 
         #Iterate over msg
-        for m in msg:
-            if m == "!test":
-                self.key.ListKeys(channel,self)
-            elif m == "!donnerstag":
-                self.service.Donnerstag(channel,self)
-            elif m == "!darkwing":
-                self.eggs.DarkWing(channel,self)
+        if msg[0] == "!keys":
+            self.key.ListKeys(channel,self)
+        elif msg[0] == "!donnerstag":
+            self.service.Donnerstag(channel,self)
+        elif msg[0] == "!darkwing":
+            self.eggs.DarkWing(channel,self)
+
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
@@ -154,6 +149,8 @@ class BotFactory(protocol.ClientFactory):
 if __name__ == '__main__':
     #create intern
     factory = BotFactory(sys.argv[1])
+    #create new keys
+    keys = KeyFunctions()
 
     #TODO: Parse from config file
     hostname = 'irc.hackint.org'
