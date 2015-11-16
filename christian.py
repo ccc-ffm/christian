@@ -15,14 +15,15 @@ import sys,os,random
 
 class EasterEggs():
 
-    def DarkWing(self,arg,channel,cb):
+    def DarkWing(self,channel,cb):
         #TODO: Random selection from file
         #Random Selection from Jonathan Kupferman:
         #http://www.regexprn.com/2008/11/read-random-line-in-large-file-in.html
         #Open the file:
+
         filename="./mylines/darkwing.txt"
         file = open(filename,'r')
-        print "hello"
+
         #Get the total file size
         file_size = os.stat(filename)[6]
 
@@ -37,7 +38,6 @@ class EasterEggs():
         line = file.readline()
 
         #here is your random line in the file
-        print line
         cb.say(channel,line)
 
     def Balu(self):
@@ -52,18 +52,15 @@ class EasterEggs():
 
 class ServiceFunctions():
 
-    def Donnerstag(self,arg,channel,cb):
+    def Donnerstag(self,channel,cb):
         #TODO: Read from file
-        msg = "Donnerstag"
         cb.say(channel,"Wir treffen uns immer Donnerstags um 19:00 Uhr in Bockenheim in unserem Hackquarter in der Häuser Gasse 2")
-        print("Donnerstag")
-        return msg
 
 
 class KeyFunctions():
 
 
-    def ListKeys(self,arg,channel,cb):
+    def ListKeys(self,channel,cb):
         print("ListKeys")
         cb.say(channel,"ListKeys")
 
@@ -87,13 +84,6 @@ class InternBot(irc.IRCClient):
     key = KeyFunctions()
     eggs = EasterEggs()
     service = ServiceFunctions()
-
-    """Function Dispatcher"""
-    dispatch = {
-            '!test':key.ListKeys,
-            '!donnerstag':service.Donnerstag,
-            '!darkwing':eggs.DarkWing,
-            }
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
@@ -131,10 +121,16 @@ class InternBot(irc.IRCClient):
 
     def privmsg(self, user, channel, message):
         nick, _, host = user.partition('!')
-        message = message.strip()
+        msg = message.split(" ")
 
-        self.dispatch[message]("test",channel,self)
-
+        #Iterate over msg
+        for m in msg:
+            if m == "!test":
+                self.key.ListKeys(channel,self)
+            elif m == "!donnerstag":
+                self.service.Donnerstag(channel,self)
+            elif m == "!darkwing":
+                self.eggs.DarkWing(channel,self)
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
