@@ -11,7 +11,8 @@ from twisted.internet import reactor, protocol, ssl
 #system imports
 import sys,os,random
 from datetime import datetime
-import ConfigParser,io
+from ConfigParser import SafeConfigParser
+
 
 class HQ():
     #TODO: Should be persistent and set on startup
@@ -227,14 +228,14 @@ if __name__ == '__main__':
     keys = KeyFunctions()
 
     #read Serversettings from config file
-    config = ConfigParser.RawConfigParser(allow_no_value=True)
-    config.read("./config/network.cfg")
+    parser = SafeConfigParser()
+    parser.read('./config/network.cfg')
 
-    hostname=config.get("network", "host")
-    port=config.get("network", "p")
+    host=parser.get('network', 'hostname')
+    p=parser.getint('network', 'port')
 
     #connect
-    reactor.connectSSL(hostname, port, factory, ssl.ClientContextFactory())
+    reactor.connectSSL(host, p, factory, ssl.ClientContextFactory())
 
     #run
     reactor.run()
