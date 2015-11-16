@@ -144,12 +144,8 @@ class KeyFunctions():
             return(False)
 
 class InternBot(irc.IRCClient):
-<<<<<<< HEAD
     nickname = 'dieter'
-=======
-    nickname = 'fred'
     channelIntern = "#testgnarplong"
->>>>>>> 929e829bc51b78d3a7159f4edd32eb22748e4556
 
     """Action Objects"""
     key = KeyFunctions()
