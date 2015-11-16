@@ -11,7 +11,7 @@ from twisted.internet import reactor, protocol, ssl
 #system imports
 import sys,os,random
 from datetime import datetime
-
+import ConfigParser,io
 
 class HQ():
     #TODO: Should be persistent and set on startup
@@ -220,14 +220,20 @@ class BotFactory(protocol.ClientFactory):
         return(self.channel)
 
 if __name__ == '__main__':
+
     #create intern
     factory = BotFactory(sys.argv[1])
     #create new keys
     keys = KeyFunctions()
 
-    #TODO: Parse from config file
-    hostname = 'irc.hackint.org'
-    port = 9999
+    #read Serversettings from config file
+    config = ConfigParser.RawConfigParser(allow_no_value=True)
+    config.read("./config/network.cfg")
+
+    hostname=config.get("network", "host")
+    port=config.get("network", "p")
+
+    #connect
     reactor.connectSSL(hostname, port, factory, ssl.ClientContextFactory())
 
     #run
