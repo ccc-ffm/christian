@@ -24,6 +24,31 @@ class HQ():
         print self.isopen
         file.close()
 
+        self.people=[]
+
+    def Join(self,channel,cb,user):
+        if user in self.people:
+            cb.say(channel,user+" is already here!")
+        else:
+            self.people.append(user)
+
+    def Leave(self,channel,cb,user):
+        if user in self.people:
+            self.people.remove(user)
+        else:
+            cb.say(channel,user+" is not here!")
+
+    def Whois(self,channel,cb):
+        if not self.people:
+            cb.say(channel,"No one is here!")
+        else:
+            userset = set(self.people)
+            if len(self.people) == 1:
+                say = ', '.join(userset) +" is here!"
+            else:
+                say = ', '.join(userset) +" are here!"
+            cb.say(channel,say)
+
 class EasterEggs():
 
     def GetRandomLine(self,filename):
@@ -157,6 +182,7 @@ class InternBot(irc.IRCClient):
     key = KeyFunctions()
     eggs = EasterEggs()
     service = ServiceFunctions()
+    hq = HQ()
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
@@ -215,6 +241,12 @@ class InternBot(irc.IRCClient):
             self.key.OpenHQ(channel,self)
         elif msg[0] == "!close":
             self.key.CloseHQ(channel,self)
+        elif msg[0] == "!join":
+            self.hq.Join(channel,self, msg[1])
+        elif msg[0] == "!leave" or msg[0] == "!part":
+            self.hq.Leave(channel,self,msg[1])
+        elif msg[0] == "!whois":
+            self.hq.Whois(channel,self)
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
@@ -257,4 +289,4 @@ if __name__ == '__main__':
 
     #run
     reactor.run()
-
+9
