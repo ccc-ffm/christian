@@ -133,13 +133,14 @@ class KeyFunctions():
         """List current holders of hq keys"""
         print("ListKeys")
         keyMessage = "All the keys are belong to: "
-        keyMessage += ", ".join(self.keyholders)
+        keyMessage += ", ".join(self.keyholders[:-1])
+        keyMessage += " & " + self.keyholders[-1]
         cb.say(channel,keyMessage)
 
     def OpenHQ(self,channel,cb):
         """This changes the channel topic"""
         print "Open"
-        if self.hq.isopen == False:
+        if self.hq.isopen != True:
             self.hq.isopen = True
             #Get Time:
             time = datetime.now().strftime('%d-%m-%Y %H:%M')
@@ -147,10 +148,22 @@ class KeyFunctions():
             #Set Topic
             cb.topic(channel,"HQ is open since: " + time)
 
+    def PrivateHQ(self,channel,cb):
+        """This changes the channel topic"""
+        print "Private"
+        if self.hq.isopen != "Private":
+            self.hq.isopen = "Private"
+            #Get Time:
+            time = datetime.now().strftime('%d-%m-%Y %H:%M')
+            cb.say(channel,"HQ is open for members only since: " + time)
+            #Set Topic
+            cb.topic(channel,"HQ is open for members only since: " + time)
+
+
     def CloseHQ(self,channel,cb):
         print "Close"
         """This changes the channel topic"""
-        if self.hq.isopen == True:
+        if self.hq.isopen != False:
             self.hq.isopen = False
             cb.say(channel, "HQ is closed!")
             cb.topic(channel,"HQ is closed!")
@@ -193,11 +206,11 @@ class InternBot(irc.IRCClient):
 
     def signedOn(self):
         """Called when bot has succesfully signed on to server."""
-        #TODO Get and Set Keyholders from Channel topic
         self.join(self.factory.channel)
 
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
+        #TODO Get and Set Keyholders from Channel topic
 
     def alterCollidedNick(self, nickname):
         return nickname+'_'
@@ -239,6 +252,8 @@ class InternBot(irc.IRCClient):
             self.eggs.Raspel(channel,self)
         elif msg[0] == "!open":
             self.key.OpenHQ(channel,self)
+        elif msg[0] == "!private":
+            self.key.PrivateHQ(channel, self)
         elif msg[0] == "!close":
             self.key.CloseHQ(channel,self)
         elif msg[0] == "!join":
@@ -289,4 +304,4 @@ if __name__ == '__main__':
 
     #run
     reactor.run()
-9
+
