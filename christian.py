@@ -9,7 +9,7 @@ from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, ssl
 
 #system imports
-import sys,os,random
+import sys,os,random,re
 from datetime import datetime
 from ConfigParser import SafeConfigParser
 
@@ -150,7 +150,7 @@ class KeyFunctions():
             return(False)
 
 class InternBot(irc.IRCClient):
-    nickname = 'dieter'
+    nickname = 'wurst'
     channelIntern = "#testgnarplong"
 
     """Action Objects"""
@@ -179,7 +179,23 @@ class InternBot(irc.IRCClient):
     def privmsg(self, user, channel, message):
         """This is called on any message seen in the given channel"""
         nick, _, host = user.partition('!')
+        #do nothing if first sign is something else than a !
+        if message[0] != "!":
+            return(False)
+
+        ## replace nick aliases by the actual nickname
+        aliases = {}
+        with open("./config/aliases", "r") as fileA:
+            for line in fileA:
+                alias = line.split(":")
+                aliases[alias[0]] = alias[1].strip().encode()
+        print(message)
+        print(aliases)
+        for alias, nickname in aliases.items():
+            message = re.sub(alias, nickname, message)
+        print(message)
         msg = message.split(" ")
+
         if msg[0] == "!help":
             self.service.Help(nick, channel, self)
 
