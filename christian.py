@@ -62,7 +62,6 @@ class EasterEggs():
         cb.say(channel,myline)
 
     def Raspel(self,channel,cb):
-        #TODO: Read from file
         filename = "./myurls/raspel.url"
         url = self.GetURL(filename)
         cb.say(channel,url)
@@ -74,6 +73,7 @@ class ServiceFunctions():
         cb.say(channel,"Wir treffen uns immer Donnerstags um 19:00 Uhr in Bockenheim in unserem Hackquarter in der Häuser Gasse 2")
 
     def Help(self, user, channel, cb):
+	#TODO: Move to wiki
         if channel[1:] == factory.getChannel():
             helpText = """
 Help ahead, my lost sailor!
@@ -239,3 +239,4 @@ if __name__ == '__main__':
 
     #run
     reactor.run()
+
