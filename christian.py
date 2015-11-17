@@ -68,24 +68,21 @@ class EasterEggs():
 
 class ServiceFunctions():
 
+    def GetText(self,filename):
+        fileCont = ""
+        with open(filename, 'r') as inFile:
+            for line in inFile:
+                fileCont += line.strip() + "\n"
+        return fileCont
+
     def Donnerstag(self,channel,cb):
-        #TODO: Read from file
-        cb.say(channel,"Wir treffen uns immer Donnerstags um 19:00 Uhr in Bockenheim in unserem Hackquarter in der Häuser Gasse 2")
+        cb.say(channel, self.GetText("./mylines/donnerstag.txt"))
 
     def Help(self, user, channel, cb):
-	#TODO: Move to wiki
         if channel[1:] == factory.getChannel():
-            helpText = """
-Help ahead, my lost sailor!
-You'll find the desired information in teh webz:
-https://wiki.ccc-ffm.de/
-"""
+            helpText = self.GetText("./mylines/help.txt")
         else:
-            helpText = """
-I'd like to help you but from where are you talking to me, and why?
-You'll find some help right here:
-https://wiki.ccc-ffm.de/
-"""
+            helpText = self.GetText("./mylines/help_public.txt")
         cb.msg(user, helpText, 120)
 
 class KeyFunctions():
