@@ -15,8 +15,14 @@ from ConfigParser import SafeConfigParser
 
 
 class HQ():
-    #TODO: Should be persistent and set on startup
-    isopen = False
+    #TODO: Check if file exists
+    def __init__(self):
+        self.isopen = False
+        filename = "./storage/hq.txt"
+        file = open(filename,'r')
+        self.isopen=file.readline()
+        print self.isopen
+        file.close()
 
 class EasterEggs():
 
