@@ -38,6 +38,17 @@ class HQ():
         else:
             cb.say(channel,user+" is not here!")
 
+    def Whois(self,channel,cb):
+        if not self.people:
+            cb.say(channel,"No one is here!")
+        else:
+            userset = set(self.people)
+            if len(self.people) == 1:
+                say = ', '.join(userset) +" is here!"
+            else:
+                say = ', '.join(userset) +" are here!"
+            cb.say(channel,say)
+
 class EasterEggs():
 
     def GetRandomLine(self,filename):
@@ -237,6 +248,8 @@ class InternBot(irc.IRCClient):
             self.hq.Join(channel,self, msg[1])
         elif msg[0] == "!leave" or msg[0] == "!part":
             self.hq.Leave(channel,self,msg[1])
+        elif msg[0] == "!whois":
+            self.hq.Whois(channel,self)
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
