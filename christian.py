@@ -189,11 +189,8 @@ class InternBot(irc.IRCClient):
             for line in fileA:
                 alias = line.split(":")
                 aliases[alias[0]] = alias[1].strip().encode()
-        print(message)
-        print(aliases)
         for alias, nickname in aliases.items():
             message = re.sub(alias, nickname, message)
-        print(message)
         msg = message.split(" ")
 
         if msg[0] == "!help":
