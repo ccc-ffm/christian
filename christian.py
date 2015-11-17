@@ -70,6 +70,8 @@ class ServiceFunctions():
 
     def GetText(self,filename):
         fileCont = ""
+        if not os.path.isfile(filename):
+            return("Something went terribly wrong, better luck next time!")
         with open(filename, 'r') as inFile:
             for line in inFile:
                 fileCont += line.strip() + "\n"
