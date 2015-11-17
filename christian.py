@@ -24,6 +24,14 @@ class HQ():
         print self.isopen
         file.close()
 
+        self.people=[]
+
+    def Join(self,channel,cb,user):
+        if user in self.people:
+            cb.say(channel,user+" is already here!")
+        else:
+            self.people.append(user)
+
 class EasterEggs():
 
     def GetRandomLine(self,filename):
@@ -157,6 +165,7 @@ class InternBot(irc.IRCClient):
     key = KeyFunctions()
     eggs = EasterEggs()
     service = ServiceFunctions()
+    hq = HQ()
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
@@ -218,6 +227,8 @@ class InternBot(irc.IRCClient):
             self.key.OpenHQ(channel,self)
         elif msg[0] == "!close":
             self.key.CloseHQ(channel,self)
+        elif msg[0] == "!join":
+            self.hq.Join(channel,self, msg[1])
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
@@ -260,4 +271,4 @@ if __name__ == '__main__':
 
     #run
     reactor.run()
-
+9
