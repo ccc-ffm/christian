@@ -49,6 +49,36 @@ class HQ():
                 say = ', '.join(userset) +" are here!"
             cb.say(channel,say)
 
+    def OpenHQ(self,channel,cb):
+        """This changes the channel topic"""
+        print "Open"
+        if self.isopen != True:
+            self.isopen = True
+            #Get Time:
+            time = datetime.now().strftime('%d-%m-%Y %H:%M')
+            cb.say(channel,"HQ is open since: " + time)
+            #Set Topic
+            cb.topic(channel,"HQ is open since: " + time)
+
+    def PrivateHQ(self,channel,cb):
+        """This changes the channel topic"""
+        print "Private"
+        if self.isopen != "Private":
+            self.isopen = "Private"
+            #Get Time:
+            time = datetime.now().strftime('%d-%m-%Y %H:%M')
+            cb.say(channel,"HQ is open for members only since: " + time)
+            #Set Topic
+            cb.topic(channel,"HQ is open for members only since: " + time)
+
+
+    def CloseHQ(self,channel,cb):
+        print "Close"
+        """This changes the channel topic"""
+        if self.isopen != False:
+            self.isopen = False
+            cb.say(channel, "HQ is closed!")
+            cb.topic(channel,"HQ is closed!")
 class EasterEggs():
 
     def GetRandomLine(self,filename):
@@ -119,7 +149,6 @@ class ServiceFunctions():
         cb.msg(user, helpText, 120)
 
 class KeyFunctions():
-    hq = HQ ()
 
     def __init__(self):
         self.keyholders = []
@@ -136,39 +165,6 @@ class KeyFunctions():
         keyMessage += ", ".join(self.keyholders[:-1])
         keyMessage += " & " + self.keyholders[-1]
         cb.say(channel,keyMessage)
-
-    def OpenHQ(self,channel,cb):
-        """This changes the channel topic"""
-        print "Open"
-        if self.hq.isopen != True:
-            self.hq.isopen = True
-            #Get Time:
-            time = datetime.now().strftime('%d-%m-%Y %H:%M')
-            cb.say(channel,"HQ is open since: " + time)
-            #Set Topic
-            cb.topic(channel,"HQ is open since: " + time)
-
-    def PrivateHQ(self,channel,cb):
-        """This changes the channel topic"""
-        print "Private"
-        if self.hq.isopen != "Private":
-            self.hq.isopen = "Private"
-            #Get Time:
-            time = datetime.now().strftime('%d-%m-%Y %H:%M')
-            cb.say(channel,"HQ is open for members only since: " + time)
-            #Set Topic
-            cb.topic(channel,"HQ is open for members only since: " + time)
-
-
-    def CloseHQ(self,channel,cb):
-        print "Close"
-        """This changes the channel topic"""
-        if self.hq.isopen != False:
-            self.hq.isopen = False
-            cb.say(channel, "HQ is closed!")
-            cb.topic(channel,"HQ is closed!")
-            #Set Topic
-
 
     def ChangeKeyholders(self,channel,cb,oldholder,newholder):
         """ Hand one key from an holder to another one """
@@ -188,7 +184,7 @@ class KeyFunctions():
             return(False)
 
 class InternBot(irc.IRCClient):
-    nickname = 'wurst'
+    nickname = 'foo'
     channelIntern = "#testgnarplong"
 
     """Action Objects"""
@@ -251,11 +247,11 @@ class InternBot(irc.IRCClient):
         elif msg[0] == "!raspel":
             self.eggs.Raspel(channel,self)
         elif msg[0] == "!open":
-            self.key.OpenHQ(channel,self)
+            self.hq.OpenHQ(channel,self)
         elif msg[0] == "!private":
-            self.key.PrivateHQ(channel, self)
+            self.hq.PrivateHQ(channel, self)
         elif msg[0] == "!close":
-            self.key.CloseHQ(channel,self)
+            self.hq.CloseHQ(channel,self)
         elif msg[0] == "!join":
             self.hq.Join(channel,self, msg[1])
         elif msg[0] == "!leave" or msg[0] == "!part":
