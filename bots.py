@@ -2,6 +2,9 @@
 from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, ssl
 
+#system imports
+import re
+
 #Import bot modules
 from hq import HQ
 from eggs import EasterEggs
@@ -75,7 +78,7 @@ class InternBot(irc.IRCClient):
         if msg[0] == "!help":
             self.service.Help(nick, channel, self)
 
-        if channel[1:] != factory.getChannel():
+        if channel[1:] != self.factory.getChannel():
             return(False)
         if msg[0] == "!keys":
             if len(msg) == 3:
