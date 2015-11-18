@@ -15,26 +15,63 @@ from ConfigParser import SafeConfigParser
 
 
 class HQ():
-    #TODO: Check if file exists
-    def __init__(self):
-        self.isopen = False
-        filename = "./storage/hq.txt"
-        file = open(filename,'r')
-        self.isopen=file.readline()
-        print self.isopen
-        file.close()
+    # set fallback status
+    isopen = "unknown"
 
-        self.people=[]
+    # list of valid states in which the hq may be left behind
+    validStatuses = ["open", "closed", "private"]
+
+    # set time format string
+    timeFormat = "%Y-%m-%d %H:%M"
+
+    # set fallback status since
+    statusSince = datetime.now().strftime(timeFormat)
+
+    # initialise list of people currently present in the hq
+    people = []
+
+    def __init__(self):
+        # load last status from file
+        with open("./storage/hq.txt") as hqF:
+            self.isopen = hqF.readline().strip()
+            self.statusSince = hqF.readline().strip()
+        sys.stderr.write(self.isopen + "\n")
+        sys.stderr.write(self.statusSince + "\n")
+
+        # if status open or private load people from file
+        with open("./storage/people.txt") as peopleF:
+            for people in peopleF:
+                self.people.append(people.strip())
+            sys.stderr.write(" - ".join(self.people))
+
+    def SetStatus(self, status):
+        time = datetime.now().strftime(self.timeFormat)
+        with open("./storage/hq.txt", "w") as hqF:
+            if status in ["open", "private", "closed"]:
+                hqF.write(status)
+                self.isopen = status
+            else:
+                hqF.write("unknown")
+                self.isopen = "unknown"
+            hqF.write("\n")
+            hqF.write(time)
+
 
     def Join(self,channel,cb,user):
         if user in self.people:
             cb.say(channel,user+" is already here!")
         else:
             self.people.append(user)
+            with open("./storage/people.txt", "a") as peopleF:
+                peopleF.write(user+"\n")
+
 
     def Leave(self,channel,cb,user):
         if user in self.people:
             self.people.remove(user)
+            with open("./storage/people.txt", "w") as peopleF:
+                for people in self.people:
+                    peopleF.write(people+"\n")
         else:
             cb.say(channel,user+" is not here!")
 
@@ -52,10 +89,10 @@ class HQ():
     def OpenHQ(self,channel,cb):
         """This changes the channel topic"""
         print "Open"
-        if self.isopen != True:
-            self.isopen = True
+        if self.isopen != "open":
             #Get Time:
             time = datetime.now().strftime('%d-%m-%Y %H:%M')
+            self.SetStatus("open")
             cb.say(channel,"HQ is open since: " + time)
             #Set Topic
             cb.topic(channel,"HQ is open since: " + time)
@@ -63,10 +100,10 @@ class HQ():
     def PrivateHQ(self,channel,cb):
         """This changes the channel topic"""
         print "Private"
-        if self.isopen != "Private":
-            self.isopen = "Private"
+        if self.isopen != "private":
             #Get Time:
             time = datetime.now().strftime('%d-%m-%Y %H:%M')
+            self.SetStatus("private")
             cb.say(channel,"HQ is open for members only since: " + time)
             #Set Topic
             cb.topic(channel,"HQ is open for members only since: " + time)
@@ -75,10 +112,15 @@ class HQ():
     def CloseHQ(self,channel,cb):
         print "Close"
         """This changes the channel topic"""
-        if self.isopen != False:
-            self.isopen = False
+        if self.isopen != "closed" :
+            self.SetStatus("closed")
             cb.say(channel, "HQ is closed!")
+            #Set Topic
             cb.topic(channel,"HQ is closed!")
+            with open ("./storage/people.txt", "w") as peopleF:
+                peopleF.write("")
+            self.people = []
+
 class EasterEggs():
 
     def GetRandomLine(self,filename):
@@ -206,7 +248,18 @@ class InternBot(irc.IRCClient):
 
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
-        #TODO Get and Set Keyholders from Channel topic
+        # set topic on join
+        self.say(channel, "Hello my friends! I'm back!")
+        if self.hq.isopen == "open":
+            self.topic(channel, "HQ is open since " + self.hq.statusSince)
+        elif self.hq.isopen == "private":
+            self.topic(channel, "HQ is open for members only since " + self.hq.statusSince)
+        elif self.hq.isopen == "closed":
+            self.topic(channel, "HQ is closed")
+        else:
+            # if proper status is unknown ask for it
+            self.say(channel, "I don't know the current status of the HQ. Please double-check the status and set it to the proper value!")
+
 
     def alterCollidedNick(self, nickname):
         return nickname+'_'
