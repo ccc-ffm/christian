@@ -306,9 +306,17 @@ class InternBot(irc.IRCClient):
         elif msg[0] == "!close":
             self.hq.CloseHQ(channel,self)
         elif msg[0] == "!join":
-            self.hq.Join(channel,self, msg[1])
+            if len(msg) == 1:
+                users = nick
+            else:
+                users = msg[0]
+            self.hq.Join(channel,self, users)
         elif msg[0] == "!leave" or msg[0] == "!part":
-            self.hq.Leave(channel,self,msg[1])
+            if len(msg) == 1:
+                users = nick
+            else:
+                users = msg[0]
+            self.hq.Leave(channel,self,users)
         elif msg[0] == "!whois":
             self.hq.Whois(channel,self)
 
