@@ -8,13 +8,13 @@ class KeyFunctions():
             for line in keyfile:
                 self.keyholders.append(" ".join(line.split()))
 
-    def ListKeys(self,channel,cb):
+    def ListKeys(self,channel,user,cb):
         """List current holders of hq keys"""
         print("ListKeys")
         keyMessage = "All the keys are belong to: "
         keyMessage += ", ".join(self.keyholders[:-1])
         keyMessage += " & " + self.keyholders[-1]
-        cb.say(channel,keyMessage)
+        cb.msg(user,keyMessage)
 
     def ChangeKeyholders(self,channel,cb,oldholder,newholder):
         """ Hand one key from an holder to another one """

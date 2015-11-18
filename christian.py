@@ -91,7 +91,7 @@ class InternBot(irc.IRCClient):
             if len(msg) == 3:
                 self.key.ChangeKeyholders(channel, self, msg[1], msg[2])
             else:
-                self.key.ListKeys(channel,self)
+                self.key.ListKeys(channel,nick,self)
         elif msg[0] == "!donnerstag":
             self.service.Donnerstag(channel,self)
         elif msg[0] == "!darkwing":
