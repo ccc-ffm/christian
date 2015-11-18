@@ -57,23 +57,27 @@ class HQ():
             hqF.write(time)
 
 
-    def Join(self,channel,cb,user):
-        if user in self.people:
-            cb.say(channel,user+" is already here!")
-        else:
-            self.people.append(user)
-            with open("./storage/people.txt", "a") as peopleF:
-                peopleF.write(user+"\n")
+    def Join(self,channel,cb,users):
+        # group already joined users in on message
+        for user in users:
+            if user in self.people:
+                cb.say(channel,user+" is already here!")
+            else:
+              self.people.append(user)
+              with open("./storage/people.txt", "a") as peopleF:
+                  peopleF.write(user+"\n")
 
 
-    def Leave(self,channel,cb,user):
-        if user in self.people:
-            self.people.remove(user)
-            with open("./storage/people.txt", "w") as peopleF:
-                for people in self.people:
-                    peopleF.write(people+"\n")
-        else:
-            cb.say(channel,user+" is not here!")
+    def Leave(self,channel,cb,users):
+        # group not present users in on message
+        for user in users:
+            if user in self.people:
+                self.people.remove(user)
+                with open("./storage/people.txt", "w") as peopleF:
+                    for people in self.people:
+                        peopleF.write(people+"\n")
+            else:
+                cb.say(channel,user+" is not here!")
 
     def Whois(self,channel,cb):
         if not self.people:
@@ -264,6 +268,14 @@ class InternBot(irc.IRCClient):
     def alterCollidedNick(self, nickname):
         return nickname+'_'
 
+    def getUsers(self, message, nick):
+        msg = message.split()
+        if len(msg) == 1:
+            users = [nick]
+        else:
+            users = msg[1:]
+        return(users)
+
     def privmsg(self, user, channel, message):
         """This is called on any message seen in the given channel"""
         nick, _, host = user.partition('!')
@@ -306,17 +318,11 @@ class InternBot(irc.IRCClient):
         elif msg[0] == "!close":
             self.hq.CloseHQ(channel,self)
         elif msg[0] == "!join":
-            if len(msg) == 1:
-                users = nick
-            else:
-                users = msg[0]
-            self.hq.Join(channel,self, users)
+            users = self.getUsers(message, nick)
+            self.hq.Join(channel,self, self.getUsers(message, nick))
         elif msg[0] == "!leave" or msg[0] == "!part":
-            if len(msg) == 1:
-                users = nick
-            else:
-                users = msg[0]
-            self.hq.Leave(channel,self,users)
+            users = self.getUsers(message, nick)
+            self.hq.Leave(channel,self, self.getUsers(message, nick))
         elif msg[0] == "!whois":
             self.hq.Whois(channel,self)
 
@@ -329,7 +335,6 @@ class BotFactory(protocol.ClientFactory):
 
     def __init__(self, channel):
         self.channel = 'testgnarplong' #channel
-
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
