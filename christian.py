@@ -14,7 +14,7 @@ from datetime import datetime
 from ConfigParser import SafeConfigParser
 
 #Import the bots we want to create
-from bots import InternBot
+from bots import InternBot,Bot,PublicBot
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
@@ -22,10 +22,14 @@ class BotFactory(protocol.ClientFactory):
     """
 
     def __init__(self, channel):
+        #TODO: Set proper channels
         """Create different bots based on channel"""
         if channel == 'testgnarplong':
             self.protocol = InternBot
             self.channel = channel #channel we're going to join
+        elif channel == 'test':
+            self.protocol = PublicBot
+            self.channel = 'testgnarplong'
         else:
             print "No such channel"
             exit(1)

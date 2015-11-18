@@ -11,26 +11,49 @@ from eggs import EasterEggs
 from service import ServiceFunctions
 from keys import KeyFunctions
 
-class InternBot(irc.IRCClient):
+class Bot(irc.IRCClient):
+
+    def connectionMade(self):
+        irc.IRCClient.connectionMade(self)
+        print("Connection Established")
+
+    def connectionLost(self,reason):
+        irc.IRCClient.connectionLost(self,reason)
+
+    def signedOn(self):
+        """Called when bot has succesfully signed on to server."""
+        self.join(self.factory.channel)
+
+    def alterCollidedNick(self,nickname):
+        return nickname+'_'
+
+
+class PublicBot(Bot):
+    nickname = 'bar'
+
+    """Action Objects"""
+    service = ServiceFunctions()
+
+    def joined(self,channel):
+        self.say(channel,"Hello my friends! I'm back!")
+
+    def privmsg(self,user,channel,message):
+        nick, _, host = user.partition('!')
+        msg = message.split(" ")
+
+        if msg[0] == "!help":
+            self.service.Help(nick,channel,self)
+        if msg[0] == "!donnerstag":
+            self.service.Donnerstag(channel,self)
+
+class InternBot(Bot):
     nickname = 'foo'
-    channelIntern = "#testgnarplong"
 
     """Action Objects"""
     key = KeyFunctions()
     eggs = EasterEggs()
     service = ServiceFunctions()
     hq = HQ()
-
-    def connectionMade(self):
-        irc.IRCClient.connectionMade(self)
-        print ("connection Established")
-
-    def connectionLost(self, reason):
-        irc.IRCClient.connectionLost(self, reason)
-
-    def signedOn(self):
-        """Called when bot has succesfully signed on to server."""
-        self.join(self.factory.channel)
 
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
@@ -47,8 +70,6 @@ class InternBot(irc.IRCClient):
             self.say(channel, "I don't know the current status of the HQ. Please double-check the status and set it to the proper value!")
 
 
-    def alterCollidedNick(self, nickname):
-        return nickname+'_'
 
     def getUsers(self, message, nick):
         msg = message.split()
