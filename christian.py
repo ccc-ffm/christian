@@ -122,10 +122,15 @@ class BotFactory(protocol.ClientFactory):
     A new protocol instance will be created each time we connect to the server.
     """
 
-    protocol = InternBot
 
     def __init__(self, channel):
-        self.channel = 'testgnarplong' #channel
+        """Create different bots based on channel"""
+        if channel == 'testgnarplong':
+            self.protocol = InternBot
+            self.channel = channel #channel we're going to join
+        else:
+            print "No such channel"
+            exit(1)
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
