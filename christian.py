@@ -320,6 +320,8 @@ class InternBot(irc.IRCClient):
         elif msg[0] == "!join":
             users = self.getUsers(message, nick)
             self.hq.Join(channel,self, self.getUsers(message, nick))
+            if self.hq.isopen == "closed":
+                self.hq.OpenHQ(channel, self)
         elif msg[0] == "!leave" or msg[0] == "!part":
             users = self.getUsers(message, nick)
             self.hq.Leave(channel,self, self.getUsers(message, nick))
