@@ -9,7 +9,8 @@ from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, ssl
 
 #system imports
-import sys,os,random,re
+#mport sys,os,random,re
+import sys,re
 from datetime import datetime
 from ConfigParser import SafeConfigParser
 
