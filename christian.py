@@ -24,6 +24,7 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, channel):
         #TODO: Set proper channels
         """Create different bots based on channel"""
+        self.protocol = Bot
         if channel == 'testgnarplong':
             self.protocol = InternBot
             self.channel = channel #channel we're going to join

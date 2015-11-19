@@ -55,6 +55,14 @@ class InternBot(Bot):
     service = ServiceFunctions()
     hq = HQ()
 
+    def userKicked(self, kickee, channel, kicker, message):
+        print "kickee: " + kickee
+        print "channel : " + channel
+        print "kicker : " + kicker
+        print "message : " + message
+        msg="Hallo, der Channel " + channel + " kann nur betreten werden, wenn man auf der Access-Liste steht und eingeloggt ist. Falls du auf der Access-Liste stehst, logge dich bitte ein und versuche es erneut."
+        self.msg(kickee,msg)
+
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         # set topic on join
