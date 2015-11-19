@@ -82,7 +82,7 @@ class HQ():
         print "Open"
         if self.isopen != "open":
             #Get Time:
-            time = datetime.now().strftime('%d-%m-%Y %H:%M')
+            time = datetime.now().strftime(self.timeFormat)
             self.SetStatus("open")
             cb.say(channel,"HQ is open since: " + time)
             #Set Topic
@@ -93,15 +93,13 @@ class HQ():
         print "Private"
         if self.isopen != "private":
             #Get Time:
-            time = datetime.now().strftime('%d-%m-%Y %H:%M')
+            time = datetime.now().strftime(self.timeFormat)
             self.SetStatus("private")
             cb.say(channel,"HQ is open for members only since: " + time)
             #Set Topic
             cb.topic(channel,"HQ is open for members only since: " + time)
-
-
-    def CloseHQ(self,channel,cb):
-        print "Close"
+    def CloseHQ(self, channel, cb):
+	print "Close"
         """This changes the channel topic"""
         if self.isopen != "closed" :
             self.SetStatus("closed")
