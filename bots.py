@@ -3,7 +3,7 @@ from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, ssl
 
 #system imports
-import re
+import re,getpass,hashlib
 
 #Import bot modules
 from hq import HQ
@@ -20,9 +20,9 @@ class Bot(irc.IRCClient):
     def connectionLost(self,reason):
         irc.IRCClient.connectionLost(self,reason)
 
-    def signedOn(self):
-        """Called when bot has succesfully signed on to server."""
-        self.join(self.factory.channel)
+    #def __signedOn__(self):
+        #"""Called when bot has succesfully signed on to server."""
+        #self.join(self.factory.channel)
 
     def alterCollidedNick(self,nickname):
         return nickname+'_'
@@ -54,6 +54,11 @@ class InternBot(Bot):
     eggs = EasterEggs()
     service = ServiceFunctions()
     hq = HQ()
+
+    def signedOn(self):
+        pswd=getpass.getpass('Authpassword: ')
+        self.join(self.factory.channel)
+        #self.msg('nickserv','identfy'+pswd)
 
     def userKicked(self, kickee, channel, kicker, message):
         print "kickee: " + kickee

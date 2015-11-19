@@ -25,7 +25,7 @@ class BotFactory(protocol.ClientFactory):
         #TODO: Set proper channels
         """Create different bots based on channel"""
         self.protocol = Bot
-        if channel == 'testgnarplong':
+        if channel == 'botdemo':
             self.protocol = InternBot
             self.channel = channel #channel we're going to join
         elif channel == 'test':
