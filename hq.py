@@ -1,7 +1,9 @@
+"""Class for setting HQ states"""
 from datetime import datetime
 import sys
 
-class HQ():
+class HQ(object):
+    """Set states, join and leave people"""
     # set fallback status
     isopen = "unknown"
 
@@ -12,101 +14,106 @@ class HQ():
     timeFormat = "%Y-%m-%d %H:%M"
 
     # set fallback status since
-    statusSince = datetime.now().strftime(timeFormat)
+    statussince = datetime.now().strftime(timeFormat)
 
     # initialise list of people currently present in the hq
     people = []
 
     def __init__(self):
         # load last status from file
-        with open("./storage/hq.txt") as hqF:
-            self.isopen = hqF.readline().strip()
-            self.statusSince = hqF.readline().strip()
+        with open("./storage/hq.txt") as hqf:
+            self.isopen = hqf.readline().strip()
+            self.statussince = hqf.readline().strip()
         sys.stderr.write(self.isopen + "\n")
-        sys.stderr.write(self.statusSince + "\n")
+        sys.stderr.write(self.statussince + "\n")
 
         # if status open or private load people from file
-        with open("./storage/people.txt") as peopleF:
-            for people in peopleF:
+        with open("./storage/people.txt") as peoplef:
+            for people in peoplef:
                 self.people.append(people.strip())
             sys.stderr.write(" - ".join(self.people))
 
-    def SetStatus(self, status):
+    def setstatus(self, status):
+        """Set hq status"""
         time = datetime.now().strftime(self.timeFormat)
-        with open("./storage/hq.txt", "w") as hqF:
+        with open("./storage/hq.txt", "w") as hqf:
             if status in ["open", "private", "closed"]:
-                hqF.write(status)
+                hqf.write(status)
                 self.isopen = status
             else:
-                hqF.write("unknown")
+                hqf.write("unknown")
                 self.isopen = "unknown"
-            hqF.write("\n")
-            hqF.write(time)
+            hqf.write("\n")
+            hqf.write(time)
 
 
-    def Join(self,channel,cb,users):
+    def join(self, channel, callback, users):
+        """Join user to hq"""
         # group already joined users in on message
         for user in users:
             if user in self.people:
-                cb.say(channel,user+" is already here!")
+                callback.say(channel, user+" is already here!")
             else:
-              self.people.append(user)
-              with open("./storage/people.txt", "a") as peopleF:
-                  peopleF.write(user+"\n")
+                self.people.append(user)
+                with open("./storage/people.txt", "a") as peoplef:
+                    peoplef.write(user+"\n")
 
 
-    def Leave(self,channel,cb,users):
+    def leave(self, channel, callback, users):
+        """Leave user from hq"""
         # group not present users in on message
         for user in users:
             if user in self.people:
                 self.people.remove(user)
-                with open("./storage/people.txt", "w") as peopleF:
+                with open("./storage/people.txt", "w") as peoplef:
                     for people in self.people:
-                        peopleF.write(people+"\n")
+                        peoplef.write(people+"\n")
             else:
-                cb.say(channel,user+" is not here!")
+                callback.say(channel, user+" is not here!")
 
-    def Whois(self,channel,cb):
+    def whois(self, channel, callback):
+        """List all people who are at the hq"""
         if not self.people:
-            cb.say(channel,"No one is here!")
+            callback.say(channel, "No one is here!")
         else:
             userset = set(self.people)
             if len(self.people) == 1:
                 say = ', '.join(userset) +" is here!"
             else:
                 say = ', '.join(userset) +" are here!"
-            cb.say(channel,say)
+            callback.say(channel, say)
 
-    def OpenHQ(self,channel,cb):
+    def openhq(self, channel, callback):
         """This changes the channel topic"""
         print "Open"
         if self.isopen != "open":
             #Get Time:
             time = datetime.now().strftime(self.timeFormat)
-            self.SetStatus("open")
-            cb.say(channel,"HQ is open since: " + time)
+            self.setstatus("open")
+            callback.say(channel, "HQ is open since: " + time)
             #Set Topic
-            cb.topic(channel,"HQ is open since: " + time)
+            callback.topic(channel, "HQ is open since: " + time)
 
-    def PrivateHQ(self,channel,cb):
-        """This changes the channel topic"""
+    def privatehq(self, channel, callback):
+        """This changes the channel topic to open for members only"""
         print "Private"
         if self.isopen != "private":
             #Get Time:
             time = datetime.now().strftime(self.timeFormat)
-            self.SetStatus("private")
-            cb.say(channel,"HQ is open for members only since: " + time)
+            self.setstatus("private")
+            callback.say(channel, "HQ is open for members only since: " + time)
             #Set Topic
-            cb.topic(channel,"HQ is open for members only since: " + time)
-    def CloseHQ(self, channel, cb):
-	print "Close"
-        """This changes the channel topic"""
-        if self.isopen != "closed" :
-            self.SetStatus("closed")
-            cb.say(channel, "HQ is closed!")
+            callback.topic(channel, "HQ is open for members only since: "\
+                    + time)
+
+    def closehq(self, channel, callback):
+        """This changes the channel topic to close"""
+        if self.isopen != "closed":
+            self.setstatus("closed")
+            callback.say(channel, "HQ is closed!")
             #Set Topic
-            cb.topic(channel,"HQ is closed!")
-            with open ("./storage/people.txt", "w") as peopleF:
-                peopleF.write("")
+            callback.topic(channel, "HQ is closed!")
+            with open("./storage/people.txt", "w") as peoplef:
+                peoplef.write("")
             self.people = []
 

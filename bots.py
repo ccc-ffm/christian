@@ -81,10 +81,10 @@ class InternBot(Bot):
         # set topic on join
         self.say(channel, "Hello my friends! I'm back!")
         if self.haq.isopen == "open":
-            self.topic(channel, "HQ is open since " + self.haq.statusSince)
+            self.topic(channel, "HQ is open since " + self.haq.statussince)
         elif self.haq.isopen == "private":
             self.topic(channel, \
-                    "HQ is open for members only since " + self.haq.statusSince)
+                    "HQ is open for members only since " + self.haq.statussince)
         elif self.haq.isopen == "closed":
             self.topic(channel, "HQ is closed")
         else:
@@ -140,16 +140,16 @@ class InternBot(Bot):
         elif msg[0] == "!raspel":
             self.eggs.raspel(channel, self)
         elif msg[0] == "!open":
-            self.haq.OpenHQ(channel, self)
+            self.haq.openhq(channel, self)
         elif msg[0] == "!private":
-            self.haq.PrivateHQ(channel, self)
+            self.haq.privatehq(channel, self)
         elif msg[0] == "!close":
-            self.haq.CloseHQ(channel, self)
+            self.haq.closehq(channel, self)
         elif msg[0] == "!join":
-            self.haq.Join(channel, self, self.getusers(message, nick))
+            self.haq.join(channel, self, self.getusers(message, nick))
             if self.haq.isopen == "closed":
-                self.haq.OpenHQ(channel, self)
+                self.haq.openhq(channel, self)
         elif msg[0] == "!leave" or msg[0] == "!part":
-            self.haq.Leave(channel, self, self.getusers(message, nick))
+            self.haq.leave(channel, self, self.getusers(message, nick))
         elif msg[0] == "!whois":
-            self.haq.Whois(channel, self)
+            self.haq.whois(channel, self)
