@@ -134,11 +134,11 @@ class InternBot(Bot):
         elif msg[0] == "!donnerstag":
             self.service.Donnerstag(channel, self)
         elif msg[0] == "!darkwing":
-            self.eggs.DarkWing(channel, self)
+            self.eggs.darkwing(channel, self)
         elif msg[0] == "!balu":
-            self.eggs.Balu(channel, self)
+            self.eggs.balu(channel, self)
         elif msg[0] == "!raspel":
-            self.eggs.Raspel(channel, self)
+            self.eggs.raspel(channel, self)
         elif msg[0] == "!open":
             self.haq.OpenHQ(channel, self)
         elif msg[0] == "!private":
