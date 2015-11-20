@@ -10,6 +10,10 @@ class Keyfunctions(object):
             for line in keyfile:
                 self.keyholders.append(" ".join(line.split()))
 
+    def iskeyholder(self, nickname):
+        """Check if person owns a key"""
+        return nickname in self.keyholders
+
     def listkeys(self, user, callback):
         """List current holders of hq keys"""
         keymessage = "All the keys are belong to: "

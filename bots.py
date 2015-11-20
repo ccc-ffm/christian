@@ -149,7 +149,16 @@ class InternBot(Bot):
             self.haq.join(channel, self, self.getusers(message, nick))
             if self.haq.isopen == "closed":
                 self.haq.openhq(channel, self)
+            if self.key.iskeyholder(nick):
+                #If the person owns a key, increase count of physical keys in HQ
+                self.haq.keysinhq += 1
         elif msg[0] == "!leave" or msg[0] == "!part":
             self.haq.leave(channel, self, self.getusers(message, nick))
+            # Check if person with last key is leaving the hq
+            if self.haq.keysinhq == 1 and self.key.iskeyholder(nick):
+                self.msg(nick, "You've got the last key!" \
+                 " Remember to lock the door!")
+                self.say(channel, \
+                        nick + " has the last key, don't let him escape!")
         elif msg[0] == "!whois":
             self.haq.whois(channel, self)

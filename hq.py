@@ -19,6 +19,9 @@ class HQ(object):
     # initialise list of people currently present in the hq
     people = []
 
+    # Number of physical keys in HQ
+    keysinhq = 0
+
     def __init__(self):
         # load last status from file
         with open("./storage/hq.txt") as hqf:
@@ -32,6 +35,8 @@ class HQ(object):
             for people in peoplef:
                 self.people.append(people.strip())
             sys.stderr.write(" - ".join(self.people))
+
+
 
     def setstatus(self, status):
         """Set hq status"""
