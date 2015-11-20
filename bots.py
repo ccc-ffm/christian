@@ -44,9 +44,9 @@ class PublicBot(Bot):
         msg = message.split(" ")
 
         if msg[0] == "!help":
-            self.service.Help(nick, channel, self)
+            self.service.help(nick, channel, self)
         if msg[0] == "!donnerstag":
-            self.service.Donnerstag(channel, self)
+            self.service.donnerstag(channel, self)
 
 class InternBot(Bot):
     """This Bot will jpin the intern channel"""
@@ -122,7 +122,7 @@ class InternBot(Bot):
         msg = message.split(" ")
 
         if msg[0] == "!help":
-            self.service.Help(nick, channel, self)
+            self.service.help(nick, channel, self)
 
         #if channel[1:] != self.factory.getChannel():
             #return False
@@ -132,7 +132,7 @@ class InternBot(Bot):
             else:
                 self.key.listkeys(nick, self)
         elif msg[0] == "!donnerstag":
-            self.service.Donnerstag(channel, self)
+            self.service.donnerstag(channel, self)
         elif msg[0] == "!darkwing":
             self.eggs.darkwing(channel, self)
         elif msg[0] == "!balu":
