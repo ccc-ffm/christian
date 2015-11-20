@@ -9,7 +9,7 @@ import re, getpass
 from hq import HQ
 from eggs import EasterEggs
 from service import ServiceFunctions
-from keys import KeyFunctions
+from keys import Keyfunctions
 
 class Bot(irc.IRCClient):
     """Bot Baseclass"""
@@ -54,7 +54,7 @@ class InternBot(Bot):
     nickname = 'fastbot'
 
     """Action Objects"""
-    key = KeyFunctions()
+    key = Keyfunctions()
     eggs = EasterEggs()
     service = ServiceFunctions()
     haq = HQ()
@@ -128,9 +128,9 @@ class InternBot(Bot):
             #return False
         if msg[0] == "!keys":
             if len(msg) == 3:
-                self.key.ChangeKeyholders(channel, self, msg[1], msg[2])
+                self.key.changekeyholders(channel, self, msg[1], msg[2])
             else:
-                self.key.ListKeys(channel, nick, self)
+                self.key.listkeys(nick, self)
         elif msg[0] == "!donnerstag":
             self.service.Donnerstag(channel, self)
         elif msg[0] == "!darkwing":
