@@ -6,10 +6,7 @@ from twisted.words.protocols import irc
 import re, getpass
 
 #Bot modules
-from hq import HQ
-from eggs import EasterEggs
-from service import ServiceFunctions
-from keys import Keyfunctions
+from modules import HQ,EasterEggs , ServiceFunctions, Keyfunctions
 
 class Bot(irc.IRCClient):
     """Bot Baseclass"""
