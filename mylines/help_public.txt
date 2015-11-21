@@ -1,2 +1,4 @@
-You'll find some help over here:
-https://wiki.ccc-ffm.de/irc:help
+usage: [command] [arg]
+!donnerstag - Tell something about our public meeting.
+
+See http://wiki.ccc-ffm.de/irc:help for details.
