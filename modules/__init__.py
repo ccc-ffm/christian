@@ -1,5 +1,6 @@
-from eggs import EasterEggs
-from hq import HQ
-from keys import Keyfunctions
-from service import ServiceFunctions
+"""Modules used by bots"""
+from modules.eggs import EasterEggs
+from modules.hq import HQ
+from modules.keys import Keyfunctions
+from modules.service import ServiceFunctions
 
