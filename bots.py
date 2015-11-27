@@ -13,10 +13,11 @@ class Bot(irc.IRCClient):
 
     def __init__(self):
         self.wait_max_sec = 6000
-        self.current_wait_sec = 120
+        self.current_wait_sec = 1
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
+        self.current_wait_sec = 1
         print "Connection Established"
 
     def connectionLost(self, reason):
