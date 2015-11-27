@@ -4,21 +4,27 @@ from twisted.words.protocols import irc
 
 #System
 import re, getpass
-
+from time import sleep
 #Bot modules
-from modules import HQ,EasterEggs , ServiceFunctions, Keyfunctions
+from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions
 
 class Bot(irc.IRCClient):
     """Bot Baseclass"""
 
     def __init__(self):
-        pass
+        self.wait_max_sec = 6000
+        self.current_wait_sec = 120
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         print "Connection Established"
 
     def connectionLost(self, reason):
+        #Wait before we
+        if self.current_wait_sec < self.wait_max_sec:
+            self.current_wait_sec = self.current_wait_sec * 2
+        sleep(self.current_wait_sec)
+        #try to reconnect
         irc.IRCClient.connectionLost(self, reason)
 
     def alterCollidedNick(self, nickname):
@@ -28,7 +34,7 @@ class Bot(irc.IRCClient):
 class PublicBot(Bot):
     """This Bot will join the public channel"""
 
-    nickname = 'bar'
+    nickname = 'hans'
 
     """Action Objects"""
     service = ServiceFunctions()
@@ -48,7 +54,7 @@ class PublicBot(Bot):
 class InternBot(Bot):
     """This Bot will jpin the intern channel"""
 
-    nickname = 'fastbot'
+    nickname = 'hans'
 
     """Action Objects"""
     key = Keyfunctions()
@@ -58,8 +64,13 @@ class InternBot(Bot):
 
     def signedOn(self):
         pswd = getpass.getpass('Authpassword: ')
+        self.msg('nickserv','identfy'+pswd)
+        sleep(1)
+        #TODO: check nickserv answer
+        #if nickserv answer authenticated join
+        #else connection Lost
         self.join(self.factory.channel)
-        #self.msg('nickserv','identfy'+pswd)
+
 
     def userKicked(self, kickee, channel, kicker, message):
         print "kickee: " + kickee

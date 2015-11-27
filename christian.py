@@ -9,7 +9,7 @@ from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, ssl
 
 #system imports
-import sys,re
+import sys,re,thread,time
 from datetime import datetime
 from ConfigParser import SafeConfigParser
 
@@ -63,4 +63,3 @@ if __name__ == '__main__':
 
     #run
     reactor.run()
-
