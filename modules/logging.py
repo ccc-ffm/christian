@@ -12,7 +12,7 @@ class BotLog():
 
     def log(self, prio, mesg):
         if self.debug == True:
-            prio = "debug"
+            print(mesg)
         if prio in ["emerg", "alert", "crit", "err", "warning", "notice", "info", "debug",]:
             if prio == "emerg":
                 prio = LOG_EMERG
@@ -30,7 +30,6 @@ class BotLog():
                 prio = LOG_INFO
             elif prio == "debug":
                 prio = LOG_DEBUG
-                print(mesg)
             syslog(prio, mesg)
         else:
             #if no valid prio was specified, log error

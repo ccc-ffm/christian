@@ -34,20 +34,25 @@ class BotFactory(protocol.ClientFactory):
         self.protocol = Bot
         if channel == 'botdemo':
             self.protocol = InternBot
+            log.log("info", "instance: InternBot")
             self.channel = channel #channel we're going to join
+            log.log("info", "channel: "+channel)
         elif channel == 'test':
             self.protocol = PublicBot
+            log.log("info", "instance: InternBot")
             self.channel = 'testgnarplong'
+            log.log("info", "channel: "+channel)
         else:
-            print "No such channel"
+            log.log("crit", "no such channel: "+channel)
             exit(1)
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
+        log.log("err", "connection lost, reconnecting")
         connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
-        print ("connection failed: %s", reason)
+        log.log("crit", "connection failed: "+str(reason))
         reactor.stop()
 
     def getChannel(self):
