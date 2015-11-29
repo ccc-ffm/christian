@@ -15,7 +15,14 @@ from ConfigParser import SafeConfigParser
 
 #Import the bots we want to create
 from bots import InternBot,Bot,PublicBot
+from modules import BotLog
 
+if "--debug" in sys.argv:
+    log = BotLog(True)
+else:
+    log = BotLog(False)
+
+log.log("notice", "Christian started")
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
     A new protocol instance will be created each time we connect to the server.
@@ -59,8 +66,9 @@ if __name__ == '__main__':
     p=parser.getint('network', 'port')
 
     #connect
+    log.log("info", "connecting to "+host+" on port "+str(p))
     reactor.connectSSL(host, p, factory, ssl.ClientContextFactory())
 
     #run
+    log.log("info", "starting reactor")
     reactor.run()
-
