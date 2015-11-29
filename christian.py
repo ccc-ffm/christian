@@ -17,10 +17,7 @@ from ConfigParser import SafeConfigParser
 from bots import InternBot,Bot,PublicBot
 from modules import BotLog
 
-if "--debug" in sys.argv:
-    log = BotLog(True)
-else:
-    log = BotLog(False)
+log = BotLog()
 
 log.log("notice", "Christian started")
 class BotFactory(protocol.ClientFactory):
@@ -48,7 +45,6 @@ class BotFactory(protocol.ClientFactory):
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
-        log.log("err", "connection lost, reconnecting")
         connector.connect()
 
     def clientConnectionFailed(self, connector, reason):

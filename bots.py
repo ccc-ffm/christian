@@ -3,10 +3,12 @@
 from twisted.words.protocols import irc
 
 #System
-import re, getpass
+import re, getpass, sys
 
 #Bot modules
-from modules import HQ,EasterEggs , ServiceFunctions, Keyfunctions
+from modules import HQ,EasterEggs , ServiceFunctions, Keyfunctions, BotLog
+
+log = BotLog()
 
 class Bot(irc.IRCClient):
     """Bot Baseclass"""
@@ -16,13 +18,16 @@ class Bot(irc.IRCClient):
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
-        print "Connection Established"
+        log.log("notice", "connection established")
 
     def connectionLost(self, reason):
+        log.log("crit", "connection lost due to reason: "+str(reason))
         irc.IRCClient.connectionLost(self, reason)
 
     def alterCollidedNick(self, nickname):
-        return nickname+'_'
+        newnick = nickname+"_"
+        log.log("info", "changing nick to '"+newnick+"'")
+        return newnick
 
 
 class PublicBot(Bot):
@@ -38,8 +43,8 @@ class PublicBot(Bot):
 
     def privmsg(self, user, channel, message):
         nick, _, host = user.partition('!')
+        log.debug(nick[0:10].ljust(10)+"| "+message)
         msg = message.split(" ")
-
         if msg[0] == "!help":
             self.service.help(nick, channel, self)
         if msg[0] == "!donnerstag":
@@ -72,7 +77,7 @@ class InternBot(Bot):
                 Access-Liste stehst, logge dich bitte ein und \
                 versuche es erneut."
         self.msg(kickee, msg)
-
+        log.debug(kicker+' kicked '+kickee+' from channel '+channel+' with reason: '+message)
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         # set topic on join
@@ -104,6 +109,7 @@ class InternBot(Bot):
     def privmsg(self, user, channel, message):
         """This is called on any message seen in the given channel"""
         nick, _, host = user.partition('!')
+        log.debug(nick[0:10].ljust(10)+"| "+message)
         #do nothing if first sign is something else than a !
         if message[0] != "!":
             return False

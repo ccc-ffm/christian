@@ -1,18 +1,20 @@
 from syslog import *
+import datetime, sys
 
 class BotLog():
-    debug = False
     facility = LOG_LOCAL0
     logid = "christian"
-    def __init__(self, debugmode):
+    def __init__(self):
+        if "--debug" in sys.argv:
+            self.debugmode = True
+        else:
+            self.debugmode = False
         openlog(self.logid,0,LOG_LOCAL0)
-        if debugmode == True:
-            self.debug = True
-            syslog(LOG_DEBUG, "debugmode enabled")
 
     def log(self, prio, mesg):
-        if self.debug == True:
-            print(mesg)
+        if self.debugmode == True:
+            time = datetime.datetime.today().strftime('%Y-%m-%dT%H-%M-%S')
+            print(time + ": " + mesg)
         if prio in ["emerg", "alert", "crit", "err", "warning", "notice", "info", "debug",]:
             if prio == "emerg":
                 prio = LOG_EMERG
@@ -34,3 +36,8 @@ class BotLog():
         else:
             #if no valid prio was specified, log error
             syslog(LOG_ERR, "Unknown loglevel '" + prio + "' with message '" + mesg + "'")
+
+    def debug(self, mesg):
+        if self.debugmode == True:
+            time = datetime.datetime.today().strftime('%Y-%m-%dT%H-%M-%S')
+            print(time + ": " + mesg)
