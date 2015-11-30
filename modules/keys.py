@@ -41,4 +41,3 @@ class Keyfunctions(object):
             callback.say(channel, oldholder+ \
                     " has no key, better luck next time!")
             return False
-

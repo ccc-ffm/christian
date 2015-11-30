@@ -15,7 +15,11 @@ from ConfigParser import SafeConfigParser
 
 #Import the bots we want to create
 from bots import InternBot,Bot,PublicBot
+from modules import BotLog
 
+log = BotLog()
+
+log.log("notice", "Christian started")
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
     A new protocol instance will be created each time we connect to the server.
@@ -27,12 +31,16 @@ class BotFactory(protocol.ClientFactory):
         self.protocol = Bot
         if channel == 'botdemo':
             self.protocol = InternBot
+            log.log("info", "instance: InternBot")
             self.channel = channel #channel we're going to join
+            log.log("info", "channel: "+channel)
         elif channel == 'test':
             self.protocol = PublicBot
+            log.log("info", "instance: InternBot")
             self.channel = 'testgnarplong'
+            log.log("info", "channel: "+channel)
         else:
-            print "No such channel"
+            log.log("crit", "no such channel: "+channel)
             exit(1)
 
     def clientConnectionLost(self, connector, reason):
@@ -40,7 +48,7 @@ class BotFactory(protocol.ClientFactory):
         connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
-        print ("connection failed: %s", reason)
+        log.log("crit", "connection failed: "+str(reason))
         reactor.stop()
 
     def getChannel(self):
@@ -59,7 +67,9 @@ if __name__ == '__main__':
     p=parser.getint('network', 'port')
 
     #connect
+    log.log("info", "connecting to "+host+" on port "+str(p))
     reactor.connectSSL(host, p, factory, ssl.ClientContextFactory())
 
     #run
+    log.log("info", "starting reactor")
     reactor.run()
