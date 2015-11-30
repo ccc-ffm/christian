@@ -60,6 +60,7 @@ class HQ(object):
                 callback.say(channel, user+" is already here!")
             else:
                 self.people.append(user)
+		callback.say(channel, user+" has joined the hq.")
                 with open("./storage/people.txt", "a") as peoplef:
                     peoplef.write(user+"\n")
 
@@ -70,6 +71,7 @@ class HQ(object):
         for user in users:
             if user in self.people:
                 self.people.remove(user)
+		callback.say(channel, user+" has left the hq.")
                 with open("./storage/people.txt", "w") as peoplef:
                     for people in self.people:
                         peoplef.write(people+"\n")
