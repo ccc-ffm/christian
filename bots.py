@@ -21,19 +21,16 @@ class Bot(irc.IRCClient):
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         self.current_wait_sec = 1
-        print "Connection Established"
+		log.log("notice", "conncetion established")
 
     def connectionLost(self, reason):
+		log.log("crit", "connection lost: "+reason)
         #Wait before we
         if self.current_wait_sec < self.wait_max_sec:
             self.current_wait_sec = self.current_wait_sec * 2
         sleep(self.current_wait_sec)
         #try to reconnect
-        log.log("notice", "connection established")
-
-    def connectionLost(self, reason):
-        log.log("crit", "connection lost due to reason: "+str(reason))
-        irc.IRCClient.connectionLost(self, reason)
+		irc.IRCClient.connectionLost(self, reason)
 
     def alterCollidedNick(self, nickname):
         newnick = nickname+"_"
@@ -51,6 +48,7 @@ class PublicBot(Bot):
 
     def joined(self, channel):
         self.say(channel, "Hello my friends! I'm back!")
+		log.log("info", "joined channel: " + channel)
 
     def privmsg(self, user, channel, message):
         nick, _, host = user.partition('!')
@@ -58,7 +56,9 @@ class PublicBot(Bot):
         msg = message.split(" ")
         if msg[0] == "!help":
             self.service.help(nick, channel, self)
+			log.debug("help!")
         if msg[0] == "!donnerstag":
+			log.debug("donnerstag!")
             self.service.donnerstag(channel, self)
 
 class InternBot(Bot):
@@ -73,12 +73,15 @@ class InternBot(Bot):
     haq = HQ()
 
     def signedOn(self):
+		log.log("notice": "Authpassword requested")
         pswd = getpass.getpass('Authpassword: ')
-        self.msg('nickserv','identfy'+pswd)
+		log.log("notice": "authenticating agains nickserv...")
+        self.msg('nickserv','identfy '+pswd)
         sleep(1)
         #TODO: check nickserv answer
         #if nickserv answer authenticated join
         #else connection Lost
+		log.log("notice": "...prorbably done?")
         self.join(self.factory.channel)
 
 
@@ -87,16 +90,13 @@ class InternBot(Bot):
         print "channel : " + channel
         print "kicker : " + kicker
         print "message : " + message
-        msg = "Hallo, der Channel " + channel + " kann nur \
-                betreten werden, wenn man auf der Access-Liste \
-                steht und eingeloggt ist. Falls du auf der \
-                Access-Liste stehst, logge dich bitte ein und \
-                versuche es erneut."
+        msg = "Hallo, der Channel " + channel + " kann nur betreten werden, wenn man auf der Access-Liste steht und eingeloggt ist. Falls du auf der Access-Liste stehst, logge dich bitte ein und versuche es erneut."
         self.msg(kickee, msg)
         log.debug(kicker+' kicked '+kickee+' from channel '+channel+' with reason: '+message)
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         # set topic on join
+		log.log("info", "joined channel: "+channel)
         self.say(channel, "Hello my friends! I'm back!")
         if self.haq.isopen == "open":
             self.topic(channel, "HQ is open since " + self.haq.statussince)
@@ -107,9 +107,7 @@ class InternBot(Bot):
             self.topic(channel, "HQ is closed")
         else:
             # if proper status is unknown ask for it
-            self.say(channel, "I don't know the current status of the HQ. \
-                    Please double-check the status and set it to the \
-                    proper value!")
+            self.say(channel, "I don't know the current status of the HQ. Please double-check the status and set it to the proper value!")
 
 
     @classmethod
