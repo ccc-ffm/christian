@@ -46,9 +46,11 @@ class Filehandler(object):
 
             #seek to a place in the file which is a random distance away
             #Mod by file size so that it wraps around to the beginning
-            my_file.seek((my_file.tell()+random.randint(0, file_size-1))%file_size)
+            my_file.seek((my_file.tell()+\
+                    random.randint(0, file_size-1))%file_size)
 
-            #dont use the first readline since it may fall in the middle of a line
+            #dont use the first readline since it may fall in the
+            #middle of a line
             my_file.readline()
 
             #this will return the next (complete) line from the file
