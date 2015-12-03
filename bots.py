@@ -21,16 +21,16 @@ class Bot(irc.IRCClient):
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         self.current_wait_sec = 1
-		log.log("notice", "conncetion established")
+        log.log("notice", "conncetion established")
 
     def connectionLost(self, reason):
-		log.log("crit", "connection lost: "+reason)
+        log.log("crit", "connection lost: "+str(reason))
         #Wait before we
         if self.current_wait_sec < self.wait_max_sec:
             self.current_wait_sec = self.current_wait_sec * 2
-        sleep(self.current_wait_sec)
+            sleep(self.current_wait_sec)
         #try to reconnect
-		irc.IRCClient.connectionLost(self, reason)
+        irc.IRCClient.connectionLost(self, reason)
 
     def alterCollidedNick(self, nickname):
         newnick = nickname+"_"
@@ -48,7 +48,7 @@ class PublicBot(Bot):
 
     def joined(self, channel):
         self.say(channel, "Hello my friends! I'm back!")
-		log.log("info", "joined channel: " + channel)
+        log.log("info", "joined channel: " + channel)
 
     def privmsg(self, user, channel, message):
         nick, _, host = user.partition('!')
@@ -56,9 +56,9 @@ class PublicBot(Bot):
         msg = message.split(" ")
         if msg[0] == "!help":
             self.service.help(nick, channel, self)
-			log.debug("help!")
+            log.debug("help!")
         if msg[0] == "!donnerstag":
-			log.debug("donnerstag!")
+            log.debug("donnerstag!")
             self.service.donnerstag(channel, self)
 
 class InternBot(Bot):
@@ -73,15 +73,15 @@ class InternBot(Bot):
     haq = HQ()
 
     def signedOn(self):
-		log.log("notice": "Authpassword requested")
+        log.log("notice", "Authpassword requested")
         pswd = getpass.getpass('Authpassword: ')
-		log.log("notice": "authenticating agains nickserv...")
+        log.log("notice", "authenticating agains nickserv...")
         self.msg('nickserv','identfy '+pswd)
         sleep(1)
         #TODO: check nickserv answer
         #if nickserv answer authenticated join
         #else connection Lost
-		log.log("notice": "...prorbably done?")
+        log.log("notice", "...prorbably done?")
         self.join(self.factory.channel)
 
 
@@ -96,7 +96,7 @@ class InternBot(Bot):
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         # set topic on join
-		log.log("info", "joined channel: "+channel)
+        log.log("info", "joined channel: "+channel)
         self.say(channel, "Hello my friends! I'm back!")
         if self.haq.isopen == "open":
             self.topic(channel, "HQ is open since " + self.haq.statussince)
