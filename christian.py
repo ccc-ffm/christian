@@ -1,5 +1,3 @@
-"""Create Bots"""
-
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 # twisted.words.protocols.irc not ported to python 3 yet m(
@@ -51,6 +49,9 @@ class BotFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         LOG.log("crit", "connection failed: "+str(reason))
         #reactor.stop()
+
+    def getChannel(self):
+        return(self.channel)
 
 if __name__ == '__main__':
 
