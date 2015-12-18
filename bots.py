@@ -64,7 +64,7 @@ class PublicBot(Bot):
 class InternBot(Bot):
     """This Bot will jpin the intern channel"""
 
-    nickname = 'deploytest'
+    nickname = 'demobot'
 
     """Action Objects"""
     key = Keyfunctions()
