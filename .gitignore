@@ -58,3 +58,6 @@ target/
 
 #Password files
 mypasswds/
+
+#Pylint
+reports/

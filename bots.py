@@ -3,52 +3,68 @@
 from twisted.words.protocols import irc
 
 #System
+from time import sleep
 import re, getpass
 
 #Bot modules
-from modules import HQ,EasterEggs , ServiceFunctions, Keyfunctions
+from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions, BotLog
+
+LOG = BotLog()
 
 class Bot(irc.IRCClient):
     """Bot Baseclass"""
 
     def __init__(self):
-        pass
+        self.wait_max_sec = 6000
+        self.current_wait_sec = 1
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
-        print "Connection Established"
+        self.current_wait_sec = 1
+        LOG.log("notice", "conncetion established")
 
     def connectionLost(self, reason):
+        LOG.log("crit", "connection lost: "+str(reason))
+        #Wait before we
+        if self.current_wait_sec < self.wait_max_sec:
+            self.current_wait_sec = self.current_wait_sec * 2
+            sleep(self.current_wait_sec)
+        #try to reconnect
         irc.IRCClient.connectionLost(self, reason)
 
     def alterCollidedNick(self, nickname):
-        return nickname+'_'
+        newnick = nickname+"_"
+        LOG.log("info", "changing nick to '"+newnick+"'")
+        return newnick
 
 
 class PublicBot(Bot):
     """This Bot will join the public channel"""
 
-    nickname = 'bar'
+    nickname = 'hans'
 
     """Action Objects"""
     service = ServiceFunctions()
 
     def joined(self, channel):
         self.say(channel, "Hello my friends! I'm back!")
+        LOG.log("info", "joined channel: " + channel)
 
     def privmsg(self, user, channel, message):
         nick, _, host = user.partition('!')
+        LOG.debug(nick[0:10].ljust(10)+"| "+message)
         msg = message.split(" ")
-
         if msg[0] == "!help":
             self.service.help(nick, channel, self)
+            LOG.debug("help!")
         if msg[0] == "!donnerstag":
+            LOG.debug("donnerstag!")
             self.service.donnerstag(channel, self)
 
 class InternBot(Bot):
     """This Bot will jpin the intern channel"""
 
-    nickname = 'fastbot'
+    nickname = 'deploytest'
 
     """Action Objects"""
     key = Keyfunctions()
@@ -57,25 +73,37 @@ class InternBot(Bot):
     haq = HQ()
 
     def signedOn(self):
+        LOG.log("notice", "Authpassword requested")
         pswd = getpass.getpass('Authpassword: ')
+        LOG.log("notice", "authenticating agains nickserv...")
+        self.msg('nickserv', 'identfy ' + pswd)
+        sleep(1)
+        #TODO: check nickserv answer
+        #if nickserv answer authenticated join
+        #else connection Lost
+        LOG.log("notice", "...probably done?")
         self.join(self.factory.channel)
-        #self.msg('nickserv','identfy'+pswd)
+
 
     def userKicked(self, kickee, channel, kicker, message):
         print "kickee: " + kickee
         print "channel : " + channel
         print "kicker : " + kicker
         print "message : " + message
-        msg = "Hallo, der Channel " + channel + " kann nur \
-                betreten werden, wenn man auf der Access-Liste \
-                steht und eingeloggt ist. Falls du auf der \
-                Access-Liste stehst, logge dich bitte ein und \
-                versuche es erneut."
-        self.msg(kickee, msg)
+        msg = "Hallo, der Channel " + \
+        channel + " kann nur betreten \
+        werden, wenn man auf der Access-Liste \
+        steht und eingeloggt ist. Falls du auf \
+        der Access-Liste stehst, logge dich \
+        bitte ein und versuche es erneut."
 
+        self.msg(kickee, msg)
+        LOG.debug(kicker+' kicked '+kickee+' \
+        from channel '+channel+' with reason: '+message)
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         # set topic on join
+        LOG.log("info", "joined channel: "+channel)
         self.say(channel, "Hello my friends! I'm back!")
         if self.haq.isopen == "open":
             self.topic(channel, "HQ is open since " + self.haq.statussince)
@@ -86,9 +114,9 @@ class InternBot(Bot):
             self.topic(channel, "HQ is closed")
         else:
             # if proper status is unknown ask for it
-            self.say(channel, "I don't know the current status of the HQ. \
-                    Please double-check the status and set it to the \
-                    proper value!")
+            self.say(channel, "I don't know the current status \
+            of the HQ. Please double-check the status and set \
+            it to the proper value!")
 
 
     @classmethod
@@ -104,6 +132,7 @@ class InternBot(Bot):
     def privmsg(self, user, channel, message):
         """This is called on any message seen in the given channel"""
         nick, _, host = user.partition('!')
+        LOG.debug(nick[0:10].ljust(10)+"| "+message)
         #do nothing if first sign is something else than a !
         if message[0] != "!":
             return False
@@ -123,7 +152,14 @@ class InternBot(Bot):
 
         #if channel[1:] != self.factory.getChannel():
             #return False
-        if msg[0] == "!keys":
+
+        elif msg[0] == "!dirty":
+            self.haq.isdirty(channel, self)
+
+        elif msg[0] == "!clean":
+            self.haq.isclean(channel, self)
+
+        elif msg[0] == "!keys":
             if len(msg) == 3:
                 self.key.changekeyholders(channel, self, msg[1], msg[2])
             else:

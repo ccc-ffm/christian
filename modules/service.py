@@ -1,6 +1,6 @@
 """Service function class"""
 
-from files import Filehandler
+from modules.files import Filehandler
 
 class ServiceFunctions(object):
     """Some helper functions"""

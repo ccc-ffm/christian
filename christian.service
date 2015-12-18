@@ -1,0 +1,14 @@
+[Unit]
+Description=CCC-FFM Channel hans
+After=network.target
+
+[Service]
+User=hans
+WorkingDirectory=/home/hans
+ExecStart=/home/hans/hans
+PrivateTmp=true
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
