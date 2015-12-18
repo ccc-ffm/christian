@@ -7,7 +7,7 @@ from time import sleep
 import re, getpass
 
 #Bot modules
-from modules import HQ,EasterEggs , ServiceFunctions, Keyfunctions, BotLog
+from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions, BotLog
 
 LOG = BotLog()
 
@@ -64,7 +64,7 @@ class PublicBot(Bot):
 class InternBot(Bot):
     """This Bot will jpin the intern channel"""
 
-    nickname = 'hans'
+    nickname = 'deploytest'
 
     """Action Objects"""
     key = Keyfunctions()
@@ -76,12 +76,12 @@ class InternBot(Bot):
         LOG.log("notice", "Authpassword requested")
         pswd = getpass.getpass('Authpassword: ')
         LOG.log("notice", "authenticating agains nickserv...")
-        self.msg('nickserv','identfy '+pswd)
+        self.msg('nickserv', 'identfy ' + pswd)
         sleep(1)
         #TODO: check nickserv answer
         #if nickserv answer authenticated join
         #else connection Lost
-        LOG.log("notice", "...prorbably done?")
+        LOG.log("notice", "...probably done?")
         self.join(self.factory.channel)
 
 
@@ -152,7 +152,14 @@ class InternBot(Bot):
 
         #if channel[1:] != self.factory.getChannel():
             #return False
-        if msg[0] == "!keys":
+
+        elif msg[0] == "!dirty":
+            self.haq.isdirty(channel, self)
+
+        elif msg[0] == "!clean":
+            self.haq.isclean(channel, self)
+
+        elif msg[0] == "!keys":
             if len(msg) == 3:
                 self.key.changekeyholders(channel, self, msg[1], msg[2])
             else:

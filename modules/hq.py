@@ -22,11 +22,15 @@ class HQ(object):
     # Number of physical keys in HQ
     keysinhq = 0
 
+    # HQ needs cleaning
+    needscleaning = False
+
     def __init__(self):
         # load last status from file
         with open("./storage/hq.txt") as hqf:
             self.isopen = hqf.readline().strip()
             self.statussince = hqf.readline().strip()
+
         sys.stderr.write(self.isopen + "\n")
         sys.stderr.write(self.statussince + "\n")
 
@@ -36,7 +40,11 @@ class HQ(object):
                 self.people.append(people.strip())
             sys.stderr.write(" - ".join(self.people))
 
-
+        with open("./storage/clean.txt") as cleanf:
+            if cleanf.readline().strip() == '1':
+                self.needscleaning = True
+            else:
+                self.needscleaning = False
 
     def setstatus(self, status):
         """Set hq status"""
@@ -101,6 +109,9 @@ class HQ(object):
             #Set Topic
             callback.topic(channel, "HQ is open since: " + time)
 
+        if self.needscleaning is True:
+            callback.say(channel, "HQ needs cleaning! Don't forget the toilets ;)")
+
     def privatehq(self, channel, callback):
         """This changes the channel topic to open for members only"""
         print "Private"
@@ -124,3 +135,16 @@ class HQ(object):
                 peoplef.write("")
             self.people = []
 
+    def isdirty(self, channel, callback):
+        """This toggles the cleaning flag"""
+        self.needscleaning = True
+        callback.say(channel, "The HQ is dirty!")
+        with open("./storage/clean.txt", "w") as hqf:
+            hqf.write("1")
+
+    def isclean(self, channel, callback):
+        """This toggles the cleaning flag"""
+        self.needscleaning = False
+        callback.say(channel, "The HQ is clean \o/")
+        with open("./storage/clean.txt", "w") as hqf:
+            hqf.write("0")
