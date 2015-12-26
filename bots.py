@@ -164,20 +164,28 @@ class InternBot(Bot):
                 self.key.changekeyholders(channel, self, msg[1], msg[2])
             else:
                 self.key.listkeys(nick, self)
+
         elif msg[0] == "!donnerstag":
             self.service.donnerstag(channel, self)
+
         elif msg[0] == "!darkwing":
             self.eggs.darkwing(channel, self)
+
         elif msg[0] == "!balu":
             self.eggs.balu(channel, self)
+
         elif msg[0] == "!raspel":
             self.eggs.raspel(channel, self)
+
         elif msg[0] == "!open":
             self.haq.openhq(channel, self)
+
         elif msg[0] == "!private":
             self.haq.privatehq(channel, self)
+
         elif msg[0] == "!close":
             self.haq.closehq(channel, self)
+
         elif msg[0] == "!join":
             self.haq.join(channel, self, self.getusers(message, nick))
             if self.haq.isopen == "closed":
@@ -185,6 +193,12 @@ class InternBot(Bot):
             if self.key.iskeyholder(nick):
                 #If the person owns a key, increase count of physical keys in HQ
                 self.haq.keysinhq += 1
+
+        elif msg[0] == "!privjoin":
+            self.haq.join(channel, self, self.getusers(message,nick))
+            if self.haq.isopen == "closed":
+                self.haq.privatehq(channel,self)
+
         elif msg[0] == "!leave" or msg[0] == "!part":
             self.haq.leave(channel, self, self.getusers(message, nick))
             # Check if person with last key is leaving the hq
@@ -193,5 +207,7 @@ class InternBot(Bot):
                  " Remember to lock the door!")
                 self.say(channel, \
                         nick + " has the last key, don't let him escape!")
+
         elif msg[0] == "!whois":
             self.haq.whois(channel, self)
+
