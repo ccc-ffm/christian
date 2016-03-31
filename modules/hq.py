@@ -59,7 +59,6 @@ class HQ(object):
             hqf.write("\n")
             hqf.write(time)
 
-
     def join(self, channel, callback, users):
         """Join user to hq"""
         # group already joined users in on message
@@ -72,8 +71,6 @@ class HQ(object):
                 with open("./storage/people.txt", "a") as peoplef:
                     peoplef.write(user+"\n")
                 callback.topic(channel,"HQ: "+self.isopen+" ("+`len(self.people)`+") "+self.statussince)
-
-
 
     def leave(self, channel, callback, users):
         """Leave user from hq"""
@@ -123,8 +120,8 @@ class HQ(object):
             self.setstatus("private")
             callback.say(channel, "HQ is open for members only since: " + time)
             #Set Topic
-            callback.topic(channel, "HQ is open for members only since: "\
-                    + time)
+            #callback.topic(channel, "HQ is open for members only since: "+ time)
+            callback.topic(channel,"HQ: "+self.isopen+" ("+`len(self.people)`+") "+self.statussince)
 
     def closehq(self, channel, callback):
         """This changes the channel topic to close"""
