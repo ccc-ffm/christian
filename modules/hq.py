@@ -71,11 +71,13 @@ class HQ(object):
                 callback.say(channel, user+" has joined the hq.")
                 with open("./storage/people.txt", "a") as peoplef:
                     peoplef.write(user+"\n")
+                callback.topic(channel,"HQ: "+self.isopen+" ("+`len(self.people)`+") "+self.statussince)
+
 
 
     def leave(self, channel, callback, users):
         """Leave user from hq"""
-        # group not present users in on message
+        # group not presentt users in on message
         for user in users:
             if user in self.people:
                 self.people.remove(user)
