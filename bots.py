@@ -7,7 +7,7 @@ from time import sleep
 import re, getpass
 
 #Bot modules
-from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions, BotLog
+from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions, BotLog, Postbox
 
 LOG = BotLog()
 
@@ -71,13 +71,14 @@ class InternBot(Bot):
     eggs = EasterEggs()
     service = ServiceFunctions()
     haq = HQ()
+    postbox = Postbox()
 
     def signedOn(self):
         LOG.log("notice", "Authpassword requested")
-        pswd = getpass.getpass('Authpassword: ')
-        LOG.log("notice", "authenticating agains nickserv...")
-        self.msg('nickserv', 'identfy ' + pswd)
-        sleep(1)
+        #pswd = getpass.getpass('Authpassword: ')
+        #LOG.log("notice", "authenticating agains nickserv...")
+        #self.msg('nickserv', 'identfy ' + pswd)
+        #sleep(1)
         #TODO: check nickserv answer
         #if nickserv answer authenticated join
         #else connection Lost
@@ -100,6 +101,13 @@ class InternBot(Bot):
         self.msg(kickee, msg)
         LOG.debug(kicker+' kicked '+kickee+' \
         from channel '+channel+' with reason: '+message)
+
+    def userJoined(self,user,channel):
+        """Check if there are any messages for the user"""
+        if self.postbox.hasmessage(user) is True:
+            self.postbox.replaymessage(user,self)
+
+
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         # set topic on join
@@ -117,7 +125,6 @@ class InternBot(Bot):
             self.say(channel, "I don't know the current status \
             of the HQ. Please double-check the status and set \
             it to the proper value!")
-
 
     @classmethod
     def getusers(cls, message, nick):
@@ -211,3 +218,6 @@ class InternBot(Bot):
         elif msg[0] == "!whois":
             self.haq.whois(channel, self)
 
+        elif msg[0] == "!tell":
+            self.postbox.savemessage(nick, msg[1], msg[2:])
+            self.say(channel, "I saved your message!")
