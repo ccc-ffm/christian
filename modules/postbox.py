@@ -15,11 +15,13 @@ class Postbox(object):
 
 
     def hasmessage(self,user):
-        return os.stat('./postbox/%s' %user).st_size == 0
+        return os.path.exists('./postbox/%s' %user)
 
     def replaymessage(self,user,callback):
         with open('./postbox/%s' %user, 'r') as postbox:
-            callback.msg(user,postbox.read().replace('\n', ''),128)
+            callback.msg(user,postbox.read(),128)
+        self.removepostbox(user)
 
+    @classmethod
     def removepostbox(self,user):
         os.remove('./postbox/%s' %user)
