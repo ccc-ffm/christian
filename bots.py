@@ -101,6 +101,13 @@ class InternBot(Bot):
         self.msg(kickee, msg)
         LOG.debug(kicker+' kicked '+kickee+' \
         from channel '+channel+' with reason: '+message)
+
+    def userJoined(self,user,channel):
+        """Check if there are any messages for the user"""
+        if self.postbox.hasmessage(user) is False:
+            self.postbox.replaymessage(user,self)
+
+
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         # set topic on join
@@ -118,7 +125,6 @@ class InternBot(Bot):
             self.say(channel, "I don't know the current status \
             of the HQ. Please double-check the status and set \
             it to the proper value!")
-
 
     @classmethod
     def getusers(cls, message, nick):
