@@ -6,11 +6,11 @@ import os
 class Postbox(object):
 
     def savemessage(self,sender,receipient,msg):
-        with open('./postbox/%s',receipient) as postbox:
-            time = time.strftime("%Y-%m-%d %H-%M")
-            text = 'From '+sender+' @ '+time+": "+msg
-            postbox.append(text)
-            pstbox.close()
+        with open('./postbox/%s' %receipient,'wb+') as postbox:
+            msgtime = time.strftime("%Y-%m-%d %H-%M")
+            text = 'From '+sender+' @ '+msgtime+": "+msg
+            postbox.write(text)
+            postbox.close()
 
 
     def hasmessage(self,user):
