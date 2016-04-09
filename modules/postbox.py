@@ -3,7 +3,7 @@
 import time
 import os
 
-class postbox(object):
+class Postbox(object):
 
     def savemessage(self,sender,receipient,msg):
         with open('./postbox/%s',receipient) as postbox:
@@ -16,7 +16,9 @@ class postbox(object):
     def hasmessage(self,user):
         return os.stat('./postbox/%s').st_size == 0
 
-    def getmessageforuser(self,user):
-        pass
+    def replaymessageforuser(self,user,callback):
+        with open('./postbox/%s',user) as postbox:
+            callback.msg(user,postbox.read().replace('\n', ''),128)
+
 
 
