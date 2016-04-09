@@ -106,6 +106,7 @@ class InternBot(Bot):
         """Check if there are any messages for the user"""
         if self.postbox.hasmessage(user) is False:
             self.postbox.replaymessage(user,self)
+            self.removepostbox(user)
 
 
     def joined(self, channel):
