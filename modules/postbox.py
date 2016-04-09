@@ -6,9 +6,10 @@ import os
 class Postbox(object):
 
     def savemessage(self,sender,receipient,msg):
-        with open('./postbox/%s' %receipient,'wb+') as postbox:
+        with open('./postbox/%s' %receipient,'ab+') as postbox:
             msgtime = time.strftime("%Y-%m-%d %H-%M")
-            text = 'From '+sender+' @ '+msgtime+": "+msg
+            msgstr = ' '.join(str(part) for part in msg)
+            text = 'From '+sender+'@'+msgtime+": "+msgstr+"\n"
             postbox.write(text)
             postbox.close()
 
@@ -17,8 +18,7 @@ class Postbox(object):
         return os.stat('./postbox/%s').st_size == 0
 
     def replaymessageforuser(self,user,callback):
-        with open('./postbox/%s',user) as postbox:
+        with open('./postbox/%s' % user, 'r') as postbox:
             callback.msg(user,postbox.read().replace('\n', ''),128)
-
 
 
