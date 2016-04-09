@@ -213,5 +213,5 @@ class InternBot(Bot):
             self.haq.whois(channel, self)
 
         elif msg[0] == "!tell":
-            self.postbox.savemessage(nick, msg[1], msg[2])
+            self.postbox.savemessage(nick, msg[1], msg[2:])
             self.say(channel, "I saved your message!")
