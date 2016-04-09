@@ -19,3 +19,4 @@ Such Bot, many IRC! WOW!
 | !leave  | member/s (optional)| Leave member/s, leaves yourself is no arguments are provided|
 | !part   | member/s (optional)| Same as !leave |
 | !whois  | | List all the members who are in the HQ |
+| !tell   | user message | Leave a $message for apsend $user, the user receives the message on the next join. |
