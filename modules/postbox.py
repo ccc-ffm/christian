@@ -15,11 +15,11 @@ class Postbox(object):
 
 
     def hasmessage(self,user):
-        return os.stat('./postbox/%s').st_size == 0
+        return os.stat('./postbox/%s' %user).st_size == 0
 
-    def replaymessageforuser(self,user,callback):
-        with open('./postbox/%s' % user, 'r') as postbox:
+    def replaymessage(self,user,callback):
+        with open('./postbox/%s' %user, 'r') as postbox:
             callback.msg(user,postbox.read().replace('\n', ''),128)
 
     def removepostbox(self,user):
-        os.remove('./postbox/%s' % user)
+        os.remove('./postbox/%s' %user)
