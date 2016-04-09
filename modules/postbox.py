@@ -21,4 +21,5 @@ class Postbox(object):
         with open('./postbox/%s' % user, 'r') as postbox:
             callback.msg(user,postbox.read().replace('\n', ''),128)
 
-
+    def removepostbox(self,user):
+        os.remove('./postbox/%s' % user)
