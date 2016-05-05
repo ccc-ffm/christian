@@ -12,12 +12,3 @@ class ServiceFunctions(object):
         """Tell about public meeting"""
         callback.say(channel, \
                 self.fhandler.getcontent("./mylines/donnerstag.txt"))
-
-    def help(self, user, channel, callback):
-        """Paste URLs to help"""
-        if channel[1:] == callback.factory.getChannel():
-            helptext = self.fhandler.getcontent("./mylines/help.txt")
-        else:
-            helptext = self.fhandler.getcontent("./mylines/help_public.txt")
-        callback.msg(user, helptext, 120)
-
