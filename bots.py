@@ -1,13 +1,15 @@
 """Create Bots from modules"""
 #Twisted
 from twisted.words.protocols import irc
+from twisted.internet.task import LoopingCall
+from twisted.internet import reactor
 
 #System
 from time import sleep
 import re, getpass
 
 #Bot modules
-from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions, BotLog, Postbox
+from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions, BotLog, Postbox, Mqtt
 
 LOG = BotLog()
 
@@ -72,6 +74,11 @@ class InternBot(Bot):
     service = ServiceFunctions()
     haq = HQ()
     postbox = Postbox()
+    mqtt = Mqtt()
+
+    """Mqtt stuff"""
+    lc = LoopingCall(mqtt.client.loop)
+    lc.start(2)
 
     def signedOn(self):
         LOG.log("notice", "Authpassword requested")
