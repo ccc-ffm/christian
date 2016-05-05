@@ -43,8 +43,10 @@ class PublicBot(Bot):
 
     nickname = 'hans'
 
-    """Action Objects"""
+    #Action Objects
     service = ServiceFunctions()
+    helpfunction = HelpFunctions()
+    eggs = EasterEggs()
 
     def joined(self, channel):
         self.say(channel, "Hello my friends! I'm back!")
@@ -54,19 +56,66 @@ class PublicBot(Bot):
         nick, _, host = user.partition('!')
         LOG.debug(nick[0:10].ljust(10)+"| "+message)
         msg = message.split(" ")
-        if msg[0] == "!help":
-            self.service.help(nick, channel, self)
+
+        if msg[0] == '!help':
+            self.helpfunction.help(nick, channel, self)
             LOG.debug("help!")
-        if msg[0] == "!donnerstag":
+
+        elif msg[0] == '!donnerstag':
             LOG.debug("donnerstag!")
             self.service.donnerstag(channel, self)
+
+class InfraBot(Bot):
+      """This Bot wil join the public channel"""
+
+      nickname = 'hans'
+
+      #Action Objects
+      helpfunction = HelpFunctions()
+      postbox = Postbox()
+
+
+    def privmsg(self, user, channel, message):
+        nick, _, host = user.partition('!')
+        LOG.debug(nick[0:10].ljust(10)+"| "+message)
+        msg = message.split(" ")
+
+        if msg[0] == '!help':
+            self.helpfunction.help(nick, channel, self)
+            LOG.debug("help!")
+
+        elif msg[0] == "!tell":
+            self.postbox.savemessage(nick, msg[1], msg[2:])
+            self.say(channel, "I saved your message!")
+
+class VorstandBot(Bot):
+    """This Bot will joint the vorstand channel"""
+
+    nickname = 'hans'
+
+    #Action Objects
+    helpfunction = HelpFunctions()
+    postbox = Postbox()
+
+    def privmsg(self, user, channel, message):
+        nick, _, host = user.partition('!')
+        LOG.debug(nick[0:10].ljust(10)+"| "+message)
+        msg = message.split(" ")
+
+        if msg[0] == '!help':
+            self.helpfunction.help(nick, channel, self)
+            LOG.debug("help!")
+
+        elif msg[0] == "!tell":
+            self.postbox.savemessage(nick, msg[1], msg[2:])
+            self.say(channel, "I saved your message!")
 
 class InternBot(Bot):
     """This Bot will jpin the intern channel"""
 
-    nickname = 'demobot'
+    nickname = 'hans'
 
-    """Action Objects"""
+    #Action Objects
     key = Keyfunctions()
     eggs = EasterEggs()
     service = ServiceFunctions()
@@ -106,7 +155,6 @@ class InternBot(Bot):
         """Check if there are any messages for the user"""
         if self.postbox.hasmessage(user) is True:
             self.postbox.replaymessage(user,self)
-
 
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
@@ -156,9 +204,6 @@ class InternBot(Bot):
 
         if msg[0] == "!help":
             self.service.help(nick, channel, self)
-
-        #if channel[1:] != self.factory.getChannel():
-            #return False
 
         elif msg[0] == "!dirty":
             self.haq.isdirty(channel, self)
