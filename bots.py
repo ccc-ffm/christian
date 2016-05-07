@@ -7,7 +7,8 @@ from time import sleep
 import re, getpass
 
 #Bot modules
-from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions, BotLog, Postbox
+from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions, BotLog, Postbox, \
+                    HelpFunctions
 
 LOG = BotLog()
 
@@ -66,13 +67,13 @@ class PublicBot(Bot):
             self.service.donnerstag(channel, self)
 
 class InfraBot(Bot):
-      """This Bot wil join the public channel"""
+    """This Bot wil join the public channel"""
 
-      nickname = 'hans'
+    nickname = 'hans'
 
-      #Action Objects
-      helpfunction = HelpFunctions()
-      postbox = Postbox()
+    #Action Objects
+    helpfunction = HelpFunctions()
+    postbox = Postbox()
 
 
     def privmsg(self, user, channel, message):
@@ -116,6 +117,7 @@ class InternBot(Bot):
     nickname = 'hans'
 
     #Action Objects
+    helpfunction = HelpFunctions()
     key = Keyfunctions()
     eggs = EasterEggs()
     service = ServiceFunctions()
@@ -169,7 +171,7 @@ class InternBot(Bot):
         elif self.haq.isopen == "closed":
             self.topic(channel, "HQ is closed")
         else:
-            # if proper status is unknown ask for it
+            #if proper status is unknown ask for it
             self.say(channel, "I don't know the current status \
             of the HQ. Please double-check the status and set \
             it to the proper value!")
