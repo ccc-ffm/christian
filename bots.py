@@ -16,7 +16,7 @@ class Bot(irc.IRCClient):
     """The Bot"""
 
     #Action Objects
-    helpfunction = HelpFunctions()
+    helpfunctions = HelpFunctions()
     key = Keyfunctions()
     eggs = EasterEggs()
     service = ServiceFunctions()
@@ -114,6 +114,22 @@ class Bot(irc.IRCClient):
             users = msg[1:]
         return users
 
+    def globalaction(self, message,nick, channel, instance):
+        """Actions in every channel, like help"""
+        self.helpfunctions.help(nick, channel, instance)
+
+    def publicaction():
+        pass
+
+    def internaction():
+        pass
+
+    def infraaction():
+        pass
+
+    def vorstandaction():
+        pass
+
     def privmsg(self, user, channel, message):
         """This is called on any message seen in the given channel"""
         nick, _, host = user.partition('!')
@@ -133,7 +149,8 @@ class Bot(irc.IRCClient):
         msg = message.split(" ")
 
         if msg[0] == "!help":
-            self.service.help(nick, channel, self)
+            self.globalaction(msg[0],nick, channel, self)
+
 
         elif msg[0] == "!dirty":
             self.haq.isdirty(channel, self)
