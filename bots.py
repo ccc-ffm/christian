@@ -13,7 +13,17 @@ from modules import HQ, EasterEggs, ServiceFunctions, Keyfunctions, BotLog, Post
 LOG = BotLog()
 
 class Bot(irc.IRCClient):
-    """Bot Baseclass"""
+    """The Bot"""
+
+    #Action Objects
+    helpfunction = HelpFunctions()
+    key = Keyfunctions()
+    eggs = EasterEggs()
+    service = ServiceFunctions()
+    haq = HQ()
+    postbox = Postbox()
+
+    nickname = 'hans'
 
     def __init__(self):
         self.wait_max_sec = 6000
@@ -38,92 +48,6 @@ class Bot(irc.IRCClient):
         LOG.log("info", "changing nick to '"+newnick+"'")
         return newnick
 
-
-class PublicBot(Bot):
-    """This Bot will join the public channel"""
-
-    nickname = 'hans'
-
-    #Action Objects
-    service = ServiceFunctions()
-    helpfunction = HelpFunctions()
-    eggs = EasterEggs()
-
-    def joined(self, channel):
-        self.say(channel, "Hello my friends! I'm back!")
-        LOG.log("info", "joined channel: " + channel)
-
-    def privmsg(self, user, channel, message):
-        nick, _, host = user.partition('!')
-        LOG.debug(nick[0:10].ljust(10)+"| "+message)
-        msg = message.split(" ")
-
-        if msg[0] == '!help':
-            self.helpfunction.help(nick, channel, self)
-            LOG.debug("help!")
-
-        elif msg[0] == '!donnerstag':
-            LOG.debug("donnerstag!")
-            self.service.donnerstag(channel, self)
-
-class InfraBot(Bot):
-    """This Bot wil join the public channel"""
-
-    nickname = 'hans'
-
-    #Action Objects
-    helpfunction = HelpFunctions()
-    postbox = Postbox()
-
-
-    def privmsg(self, user, channel, message):
-        nick, _, host = user.partition('!')
-        LOG.debug(nick[0:10].ljust(10)+"| "+message)
-        msg = message.split(" ")
-
-        if msg[0] == '!help':
-            self.helpfunction.help(nick, channel, self)
-            LOG.debug("help!")
-
-        elif msg[0] == "!tell":
-            self.postbox.savemessage(nick, msg[1], msg[2:])
-            self.say(channel, "I saved your message!")
-
-class VorstandBot(Bot):
-    """This Bot will joint the vorstand channel"""
-
-    nickname = 'hans'
-
-    #Action Objects
-    helpfunction = HelpFunctions()
-    postbox = Postbox()
-
-    def privmsg(self, user, channel, message):
-        nick, _, host = user.partition('!')
-        LOG.debug(nick[0:10].ljust(10)+"| "+message)
-        msg = message.split(" ")
-
-        if msg[0] == '!help':
-            self.helpfunction.help(nick, channel, self)
-            LOG.debug("help!")
-
-        elif msg[0] == "!tell":
-            self.postbox.savemessage(nick, msg[1], msg[2:])
-            self.say(channel, "I saved your message!")
-
-class InternBot(Bot):
-    """This Bot will jpin the intern channel"""
-
-    nickname = 'hans'
-
-    #Action Objects
-    helpfunction = HelpFunctions()
-    key = Keyfunctions()
-    eggs = EasterEggs()
-    service = ServiceFunctions()
-    haq = HQ()
-    postbox = Postbox()
-
     def signedOn(self):
         LOG.log("notice", "Authpassword requested")
         #pswd = getpass.getpass('Authpassword: ')
@@ -134,8 +58,9 @@ class InternBot(Bot):
         #if nickserv answer authenticated join
         #else connection Lost
         LOG.log("notice", "...probably done?")
-        self.join(self.factory.channel)
-
+        #self.join(self.factory.channel)
+        for channel in self.factory.channel:
+            self.join(channel)
 
     def userKicked(self, kickee, channel, kicker, message):
         print "kickee: " + kickee
@@ -163,18 +88,21 @@ class InternBot(Bot):
         # set topic on join
         LOG.log("info", "joined channel: "+channel)
         self.say(channel, "Hello my friends! I'm back!")
-        if self.haq.isopen == "open":
-            self.topic(channel, "HQ is open since " + self.haq.statussince)
-        elif self.haq.isopen == "private":
-            self.topic(channel, \
+        print channel
+        """Intern channel specific"""
+        if channel == '#testabot2':
+            if self.haq.isopen == "open":
+                self.topic(channel, "HQ is open since " + self.haq.statussince)
+            elif self.haq.isopen == "private":
+                self.topic(channel, \
                     "HQ is open for members only since " + self.haq.statussince)
-        elif self.haq.isopen == "closed":
-            self.topic(channel, "HQ is closed")
-        else:
-            #if proper status is unknown ask for it
-            self.say(channel, "I don't know the current status \
-            of the HQ. Please double-check the status and set \
-            it to the proper value!")
+            elif self.haq.isopen == "closed":
+                self.topic(channel, "HQ is closed")
+            else:
+                #if proper status is unknown ask for it
+                self.say(channel, 'I don\'t know the current status'
+                'of the HQ. Please double-check the status and set'
+                'it to the proper value!')
 
     @classmethod
     def getusers(cls, message, nick):
@@ -194,7 +122,7 @@ class InternBot(Bot):
         if message[0] != "!":
             return False
 
-        ## replace nick aliases by the actual nickname
+        #replace nick aliases by the actual nickname
         aliases = {}
         with open("./config/aliases", "r") as filea:
             for line in filea:
