@@ -26,24 +26,23 @@ class BotFactory(protocol.ClientFactory):
 
     def __init__(self, channel):
         """Create different bots based on channel"""
-        self.protocol = Bot
         if channel == 'intern':
             self.protocol = InternBot
             LOG.log("info", "instance: InternBot")
-            self.channel = channel #channels we're going to join
+            self.channel = channel
             LOG.log("info", "channel: "+channel)
         elif channel == 'public':
             self.protocol = PublicBot
             LOG.log("info", "instance: PublicBot")
             self.channel =  channel
             LOG.log("info", "channel: "+channel)
-        elif channel = 'vorstand':
+        elif channel == 'vorstand':
             self.protocol = VorstandBot
             LOG.log("info", "instance: VorstandBot")
             self.channel = channel
             LOG.log("info", "channel: "+channel)
-        elif channel = 'infra':
-            self.protocol = VorstandBot
+        elif channel == 'infra':
+            self.protocol = InfraBot
             LOG.log("info", "instance: InfraBot")
             self.channel = channel
             LOG.log("info", "channel: "+channel)
@@ -57,7 +56,6 @@ class BotFactory(protocol.ClientFactory):
 
     def clientConnectionFailed(self, connector, reason):
         LOG.log("crit", "connection failed: "+str(reason))
-        #reactor.stop()
 
     def getChannel(self):
         return(self.channel)
