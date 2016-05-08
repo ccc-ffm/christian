@@ -25,18 +25,26 @@ class BotFactory(protocol.ClientFactory):
     """
 
     def __init__(self, channel):
-        #TODO: Set proper channels
         """Create different bots based on channel"""
-        self.protocol = Bot
-        if channel == 'botdemo':
+        if channel == 'intern':
             self.protocol = InternBot
             LOG.log("info", "instance: InternBot")
-            self.channel = channel #channel we're going to join
+            self.channel = channel
             LOG.log("info", "channel: "+channel)
-        elif channel == 'test':
+        elif channel == 'public':
             self.protocol = PublicBot
-            LOG.log("info", "instance: InternBot")
-            self.channel = 'testgnarplong'
+            LOG.log("info", "instance: PublicBot")
+            self.channel =  channel
+            LOG.log("info", "channel: "+channel)
+        elif channel == 'vorstand':
+            self.protocol = VorstandBot
+            LOG.log("info", "instance: VorstandBot")
+            self.channel = channel
+            LOG.log("info", "channel: "+channel)
+        elif channel == 'infra':
+            self.protocol = InfraBot
+            LOG.log("info", "instance: InfraBot")
+            self.channel = channel
             LOG.log("info", "channel: "+channel)
         else:
             LOG.log("crit", "no such channel: "+channel)
@@ -48,14 +56,13 @@ class BotFactory(protocol.ClientFactory):
 
     def clientConnectionFailed(self, connector, reason):
         LOG.log("crit", "connection failed: "+str(reason))
-        #reactor.stop()
 
     def getChannel(self):
         return(self.channel)
 
 if __name__ == '__main__':
 
-    #create intern
+    #Factory
     FACTORY = BotFactory(sys.argv[1])
 
     #read Serversettings from config file
