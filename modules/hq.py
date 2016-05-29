@@ -1,149 +1,59 @@
-"""Class for setting HQ states"""
 from datetime import datetime
-import sys
 
 class HQ(object):
-    """Set states, join and leave people"""
-    # set fallback status
-    isopen = "unknown"
-
-    # list of valid states in which the hq may be left behind
-    validStatuses = ["open", "closed", "private"]
-
-    # set time format string
-    timeFormat = "%Y-%m-%d %H:%M"
-
-    # set fallback status since
-    statussince = datetime.now().strftime(timeFormat)
-
-    # initialise list of people currently present in the hq
-    people = []
-
-    # Number of physical keys in HQ
-    keysinhq = 0
-
-    # HQ needs cleaning
-    needscleaning = False
 
     def __init__(self):
-        # load last status from file
-        with open("./storage/hq.txt") as hqf:
-            self.isopen = hqf.readline().strip()
-            self.statussince = hqf.readline().strip()
+        self.people_in_hq = 0
+        self.keys_in_hq = 0
+        self.joined_users = []
+        self.hq_status = 'unknown'
+        self.status_since = datetime.now().strftime('%Y-%m-%d %H:%M')
+        self.is_clean = True
+        self.joined_keys = []
 
-        sys.stderr.write(self.isopen + "\n")
-        sys.stderr.write(self.statussince + "\n")
+    def update_time(self):
+        self.status_since = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-        # if status open or private load people from file
-        with open("./storage/people.txt") as peoplef:
-            for people in peoplef:
-                self.people.append(people.strip())
-            sys.stderr.write(" - ".join(self.people))
+    def hq_open(self):
+        self.hq_status = 'open'
+        self.update_time()
 
-        with open("./storage/clean.txt") as cleanf:
-            if cleanf.readline().strip() == '1':
-                self.needscleaning = True
-            else:
-                self.needscleaning = False
+    def hq_close(self):
+        self.hq_status = 'closed'
+        self.update_time()
+        self.people_in_hq = 0
+        del(self.joined_users[:])
+        del(self.joined_keys[:])
 
-    def setstatus(self, status):
-        """Set hq status"""
-        time = datetime.now().strftime(self.timeFormat)
-        with open("./storage/hq.txt", "w") as hqf:
-            if status in ["open", "private", "closed"]:
-                hqf.write(status)
-                self.isopen = status
-            else:
-                hqf.write("unknown")
-                self.isopen = "unknown"
-            hqf.write("\n")
-            hqf.write(time)
+    def hq_private(self):
+        self.hq_status = 'private'
+        self.update_time()
 
-    def join(self, channel, callback, users):
-        """Join user to hq"""
-        # group already joined users in on message
-        for user in users:
-            if user in self.people:
-                callback.say(channel, user+" is already here!")
-            else:
-                self.people.append(user)
-                callback.say(channel, user+" has joined the hq.")
-                with open("./storage/people.txt", "a") as peoplef:
-                    peoplef.write(user+"\n")
-                callback.topic(channel,"HQ: "+self.isopen+" ("+`len(self.people)`+") "+self.statussince)
+    def hq_clean(self):
+        self.is_clean = True
 
-    def leave(self, channel, callback, users):
-        """Leave user from hq"""
-        # group not presentt users in on message
-        for user in users:
-            if user in self.people:
-                self.people.remove(user)
-                callback.say(channel, user+" has left the hq.")
-                with open("./storage/people.txt", "w") as peoplef:
-                    for people in self.people:
-                        peoplef.write(people+"\n")
-            else:
-                callback.say(channel, user+" is not here!")
+    def hq_dirty(self):
+        self.is_clean = False
 
-    def whois(self, channel, callback):
-        """List all people who are at the hq"""
-        if not self.people:
-            callback.say(channel, "No one is here!")
-        else:
-            userset = set(self.people)
-            if len(self.people) == 1:
-                say = ', '.join(userset) +" is here!"
-            else:
-                say = ', '.join(userset) +" are here!"
-            callback.say(channel, say)
+    def hq_join(self,user):
+        self.people_in_hq +=1
+        self.joined_users.append(user)
 
-    def openhq(self, channel, callback):
-        """This changes the channel topic"""
-        print "Open"
-        if self.isopen != "open":
-            #Get Time:
-            time = datetime.now().strftime(self.timeFormat)
-            self.setstatus("open")
-            callback.say(channel, "HQ is open since: " + time)
-            #Set Topic
-            callback.topic(channel, "HQ is open since: " + time)
+    def hq_leave(self,user):
+        self.people_in_hq -=1
+        self.joined_users.remove(user)
 
-        if self.needscleaning is True:
-            callback.say(channel, "HQ needs cleaning! Don't forget the toilets ;)")
+    def hq_keyjoin(self,user):
+        self.keys_in_hq +=1
+        self.joined_keys.append(user)
 
-    def privatehq(self, channel, callback):
-        """This changes the channel topic to open for members only"""
-        print "Private"
-        if self.isopen != "private":
-            #Get Time:
-            time = datetime.now().strftime(self.timeFormat)
-            self.setstatus("private")
-            callback.say(channel, "HQ is open for members only since: " + time)
-            #Set Topic
-            #callback.topic(channel, "HQ is open for members only since: "+ time)
-            callback.topic(channel,"HQ: "+self.isopen+" ("+`len(self.people)`+") "+self.statussince)
+    def hq_keyleave(self,user):
+        self.keys_in_hq -=1
+        self.joined_keys.remove(user)
 
-    def closehq(self, channel, callback):
-        """This changes the channel topic to close"""
-        if self.isopen != "closed":
-            self.setstatus("closed")
-            callback.say(channel, "HQ is closed!")
-            #Set Topic
-            callback.topic(channel, "HQ is closed!")
-            with open("./storage/people.txt", "w") as peoplef:
-                peoplef.write("")
-            self.people = []
+    def get_hq_status(self):
+        return ('HQ is {} since {}. {} Members are here'
+                .format(self.hq_status, self.status_since, self.people_in_hq))
 
-    def isdirty(self, channel, callback):
-        """This toggles the cleaning flag"""
-        self.needscleaning = True
-        callback.say(channel, "The HQ is dirty!")
-        with open("./storage/clean.txt", "w") as hqf:
-            hqf.write("1")
-
-    def isclean(self, channel, callback):
-        """This toggles the cleaning flag"""
-        self.needscleaning = False
-        callback.say(channel, "The HQ is clean \o/")
-        with open("./storage/clean.txt", "w") as hqf:
-            hqf.write("0")
+    def get_hq_clean(self):
+        return self.is_clean
