@@ -6,7 +6,7 @@ class Filehandler(object):
     """Get content of files"""
 
     def __init__(self):
-        pass
+        self.accessfile = './storage/access.txt'
 
     @classmethod
     def exists(cls, filename):
@@ -57,3 +57,25 @@ class Filehandler(object):
             line = my_file.readline()
             my_file.close()
             return line
+
+    def onaccesslist(self,user):
+        with open(self.accessfile) as accfile:
+            for line in accfile:
+                line = line.rstrip()
+                if user == line:
+                    return True
+
+            return False
+
+    def addtoaccesslist(self, user):
+        with open(self.accessfile, 'a') as accfile:
+            accfile.write(user+'\n')
+
+    def deletefromaccesslist(self, user):
+        with open(self.accessfile,'r') as accfile:
+            lines = accfile.readlines()
+        with open(self.accessfile,'w') as accfile:
+            for line in lines:
+                if line != user+"\n":
+                    accfile.write(line)
+
