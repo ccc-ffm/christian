@@ -1,0 +1,193 @@
+"""Create Bots from modules"""
+#Twisted
+from twisted.words.protocols import irc
+
+#System
+import re, getpass
+from time import sleep
+
+#Bot modules
+from bots.internbot import Intern
+from bots.publicbot import Public
+from bots.infrabot import Infra
+from bots.vorstandbot import Vorstand
+
+from modules import HQ, Keys, Postbox
+from utils import BotLog
+
+LOG = BotLog()
+
+class Bot(irc.IRCClient):
+    """The Bot"""
+
+    nickname = 'hans'
+    hq = HQ()
+    keys = Keys()
+    postbox = Postbox()
+
+    def __init__(self):
+        self.wait_max_sec = 6000
+        self.current_wait_sec = 1
+        self.intern_access = []
+
+    def connectionMade(self):
+        irc.IRCClient.connectionMade(self)
+        self.current_wait_sec = 1
+        LOG.log("notice", "conncetion established")
+
+    def connectionLost(self, reason):
+        LOG.log("crit", "connection lost: "+str(reason))
+        #Wait before we
+        if self.current_wait_sec < self.wait_max_sec:
+            self.current_wait_sec = self.current_wait_sec * 2
+            sleep(self.current_wait_sec)
+        #try to reconnect
+        irc.IRCClient.connectionLost(self, reason)
+
+    def alterCollidedNick(self, nickname):
+        newnick = nickname+"_"
+        LOG.log("info", "changing nick to '"+newnick+"'")
+        return newnick
+
+    def signedOn(self):
+        LOG.log("notice", "Authpassword requested")
+        password = getpass.getpass('Authpassword: ')
+        LOG.log("notice", "authenticating agains nickserv...")
+        self.msg('NickServ', 'identify {0} {1}'.format(nickname, password))
+        LOG.log("notice", "...probably done?")
+
+        for channel in self.factory.channel:
+            self.join(channel)
+
+    def userKicked(self, kickee, channel, kicker, message):
+        msg = ("Hallo, der Channel {0} kann nur betreten \
+        werden, wenn man auf der Access-Liste \
+        steht und eingeloggt ist. Falls du auf \
+        der Access-Liste stehst, logge dich \
+        bitte ein und versuche es erneut.".format(channel))
+
+        self.msg(kickee, msg)
+        LOG.debug(kicker+' kicked '+kickee+' \
+        from channel '+channel+' with reason: '+message)
+
+    def userJoined(self,user,channel):
+        """Check if there are any messages for the user"""
+        if self.postbox.hasmessage(user) is True:
+            self.postbox.replaymessage(user,self)
+
+    def joined(self, channel):
+        """This will get called when the bot joins the channel."""
+        # set topic on join
+        LOG.log("info", "joined channel: "+channel)
+        self.say(channel, "Hello my friends! I'm back!")
+        """Intern channel specific"""
+        if channel == '#testabot2':
+            #self.msg('ChanServ', 'access #ccc-ffm-infra list')
+            self.msg('ChanServ','hallo')
+            if self.haq.isopen == "open":
+                self.topic(channel, "HQ is open since " + self.haq.statussince)
+            elif self.haq.isopen == "private":
+                self.topic(channel, \
+                    "HQ is open for members only since " + self.haq.statussince)
+            elif self.haq.isopen == "closed":
+                self.topic(channel, "HQ is closed")
+            else:
+                #if proper status is unknown ask for it
+                self.say(channel, 'I don\'t know the current status'
+                'of the HQ. Please double-check the status and set'
+                'it to the proper value!')
+
+
+    @classmethod
+    def publicaction(self, message, nick, channel, instance):
+
+        command = message[0].translate(None, '!')
+        publicactions = Public()
+        action = None
+
+        try:
+            action = getattr(publicactions,command)
+        except:
+            raise NotImplementedError("Class `{}` does not implement `{}`".
+                    format(internactions.__class__.__name__,action))
+
+    @classmethod
+    def internaction(self, message, nick, channel, instance):
+
+        command = message[0].translate(None, '!')
+        internactions = Intern()
+        action = None
+
+        try:
+            action=getattr(internactions,command)
+        except:
+            raise NotImplementedError("Class `{}` does not implement `{}`".
+                    format(internactions.__class__.__name__, action))
+
+        kwargs = {'msg': message[1:],
+                  'nck': nick,
+                  'hq': self.hq,
+                  'keys': self.keys,
+                  'pb': self.postbox
+                 }
+        action(channel, instance, **kwargs)
+
+
+    @classmethod
+    def infraaction(self, message, nick, channel, instance):
+
+        command = message[0].translate(None, '!')
+        infraactions = Infra()
+        action = None
+
+        try:
+            action = getattr(publicactions,command)
+        except:
+            raise NotImplementedError("Class `{}` does not implement `{}`".
+                    format(infraactions.__class__.__name__,action))
+
+
+    @classmethod
+    def vorstandaction(self, message, nick, channel, instance):
+
+        command = message[0].translate(None, '!')
+        vorstandactions = Vorstand()
+        action = None
+
+        try:
+            action = getattr(vorstandactions,command)
+        except:
+            raise NotImplementedError("Class `{}` does not implement `{}`".
+                    format(vorstandactions.__class__.__name__,action))
+
+
+    def privmsg(self, user, channel, message):
+        """This is called on any message seen in the given channel"""
+        nick, _, host = user.partition('!')
+
+        #do nothing if first sign is something else than a !
+        if message[0] != "!":
+            return False
+
+        #replace nick aliases by the actual nickname
+        aliases = {}
+        with open("./config/aliases", "r") as filea:
+            for line in filea:
+                alias = line.split(":")
+                aliases[alias[0]] = alias[1].strip().encode()
+        for alias, nickname in aliases.items():
+            message = re.sub(alias, nickname, message)
+        msg = message.split(" ")
+
+        #Pass the message to its method based on the channel
+        if channel == '#testabot':
+            self.internaction(msg, nick, channel,self)
+
+        elif channel == '#ccc-ffm-intern':
+            self.publicaction(msg, nick, channel, self)
+
+        elif channel == '#ccc-ffm-infra':
+            self.infraaction(msg, nick, channel,self)
+
+        elif channel == '#ccc-ffm-vorstandaction':
+            self.vorstandaction(msg, nick, channel, self)

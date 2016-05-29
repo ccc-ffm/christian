@@ -13,42 +13,22 @@ import sys
 from ConfigParser import SafeConfigParser
 
 #Import the bots we want to create
-from bots import InternBot, Bot, PublicBot
-from modules import BotLog
+from bots import Bot
+from utils import BotLog, Signalhandler
 
 LOG = BotLog()
 
 LOG.log("notice", "Christian started")
+
+
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
     A new protocol instance will be created each time we connect to the server.
     """
 
     def __init__(self, channel):
-        """Create different bots based on channel"""
-        if channel == 'intern':
-            self.protocol = InternBot
-            LOG.log("info", "instance: InternBot")
-            self.channel = channel
-            LOG.log("info", "channel: "+channel)
-        elif channel == 'public':
-            self.protocol = PublicBot
-            LOG.log("info", "instance: PublicBot")
-            self.channel =  channel
-            LOG.log("info", "channel: "+channel)
-        elif channel == 'vorstand':
-            self.protocol = VorstandBot
-            LOG.log("info", "instance: VorstandBot")
-            self.channel = channel
-            LOG.log("info", "channel: "+channel)
-        elif channel == 'infra':
-            self.protocol = InfraBot
-            LOG.log("info", "instance: InfraBot")
-            self.channel = channel
-            LOG.log("info", "channel: "+channel)
-        else:
-            LOG.log("crit", "no such channel: "+channel)
-            exit(1)
+        self.channel = channel
+        self.protocol = Bot
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -62,19 +42,30 @@ class BotFactory(protocol.ClientFactory):
 
 if __name__ == '__main__':
 
-    #Factory
-    FACTORY = BotFactory(sys.argv[1])
-
     #read Serversettings from config file
-    PARSER = SafeConfigParser()
-    PARSER.read('./config/network.cfg')
+    parser = SafeConfigParser()
 
-    HOST=PARSER.get('network', 'hostname')
-    PORT=PARSER.getint('network', 'port')
+    parser.read('./config/network.cfg')
+    host=parser.get('network', 'hostname')
+    port=parser.getint('network', 'port')
+
+    #Read channels from config file
+    parser.read('./config/channels.cfg')
+    channels = parser.items( 'channels' )
+    chan_list=[]
+
+    for key, channel in channels:
+            chan_list.append(channel)
+
+    #Factory
+    factory = BotFactory(chan_list)
 
     #connect
-    LOG.log("info", "connecting to "+HOST+" on port "+str(PORT))
-    reactor.connectSSL(HOST, PORT, FACTORY, ssl.ClientContextFactory())
+    LOG.log("info", "connecting to "+host+" on port "+str(port))
+    reactor.connectSSL(host, port, factory, ssl.ClientContextFactory())
+
+    sig = Signalhandler(factory)
+    reactor.addSystemEventTrigger('before', 'shutdown', sig.savestates)
 
     #run
     LOG.log("info", "starting reactor")
