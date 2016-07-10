@@ -5,9 +5,6 @@ import random
 class Filehandler(object):
     """Get content of files"""
 
-    def __init__(self):
-        self.accessfile = './storage/access.txt'
-
     @classmethod
     def exists(cls, filename):
         """Check if file exists"""
@@ -38,7 +35,6 @@ class Filehandler(object):
             #Jonathan Kupferman:
             #http://www.regexprn.com/2008/11/read-random-line-in-large-file-in.html
             #Open the file:
-
             my_file = open(filename, 'r')
 
             #Get the total file size
@@ -58,24 +54,37 @@ class Filehandler(object):
             my_file.close()
             return line
 
-    def onaccesslist(self,user):
-        with open(self.accessfile) as accfile:
-            for line in accfile:
-                line = line.rstrip()
-                if user == line:
-                    return True
+    def onaccesslist(self, user, accessfile):
+        try:
+            with open(accessfile, 'r') as accfile:
+                for line in accfile:
+                   line = line.rstrip()
+                   if user == line:
+                      return 1
+            return 0
+        except Exception as e:
+            raise
+            return -1
 
-            return False
+    def addtoaccesslist(self, user, accessfile):
+        try:
+            with open(accessfile, 'a+') as accfile:
+                accfile.write(user+'\n')
+            return 0
+        except Exception as e:
+            raise
+            return 1
 
-    def addtoaccesslist(self, user):
-        with open(self.accessfile, 'a') as accfile:
-            accfile.write(user+'\n')
-
-    def deletefromaccesslist(self, user):
-        with open(self.accessfile,'r') as accfile:
-            lines = accfile.readlines()
-        with open(self.accessfile,'w') as accfile:
-            for line in lines:
-                if line != user+"\n":
-                    accfile.write(line)
+    def deletefromaccesslist(self, user, accessfile):
+        try:
+            with open(accessfile,'r') as accfile:
+                lines = accfile.readlines()
+            with open(accessfile,'w') as accfile:
+                for line in lines:
+                    if line != user+"\n":
+                        accfile.write(line)
+            return 0
+        except Exception as e:
+            raise
+            return 1
 
