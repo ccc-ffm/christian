@@ -20,7 +20,7 @@ LOG = BotLog()
 class Bot(irc.IRCClient):
     """The Bot"""
 
-    nickname = 'hans'
+    nickname = 'christian'
     hq = HQ()
     keys = Keys()
     postbox = Postbox()
@@ -53,7 +53,7 @@ class Bot(irc.IRCClient):
         LOG.log("notice", "Authpassword requested")
         password = getpass.getpass('Authpassword: ')
         LOG.log("notice", "authenticating agains nickserv...")
-        self.msg('NickServ', 'identify {0} {1}'.format(nickname, password))
+        self.msg('NickServ', 'identify {0} {1}'.format(self.nickname, password))
         LOG.log("notice", "...probably done?")
 
         for channel in self.factory.channel:
@@ -180,10 +180,10 @@ class Bot(irc.IRCClient):
         msg = message.split(" ")
 
         #Pass the message to its method based on the channel
-        if channel == '#testabot':
+        if channel == '#ccc-ffm-intern':
             self.internaction(msg, nick, channel,self)
 
-        elif channel == '#ccc-ffm-intern':
+        elif channel == '#ccc-ffm':
             self.publicaction(msg, nick, channel, self)
 
         elif channel == '#ccc-ffm-infra':

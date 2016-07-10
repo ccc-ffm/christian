@@ -3,7 +3,6 @@ from commands import EasterEggFunctions
 from commands import PostboxFunctions
 from commands import KeyFunctions
 from commands import HelpFunctions
-
 from commands import ServiceFunctions
 
 class Intern(HQFunctions,
@@ -13,5 +12,4 @@ class Intern(HQFunctions,
              HelpFunctions):
 
     def __init__(self):
-        PostboxFunctions.__init__(self)
-        HelpFunctions.__init__(self)
+        super(Intern,self).__init__()
