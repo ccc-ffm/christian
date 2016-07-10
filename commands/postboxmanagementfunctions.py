@@ -1,43 +1,50 @@
 from utils import Filehandler
+from ConfigParser import SafeConfigParser
 
 class PostboxMgmtFunctions(object):
 
     def __init__(self):
         self.fhandler = Filehandler()
 
+    def _say(self, callback, channel, msg):
+        callback.say(channel, msg)
+
     def postbox(self, channel, callback, msg=None, nck=None, hq=None, keys=None, pb=None):
+        parser = SafeConfigParser()
+        parser.read('./config/postbox.cfg')
+        accessfile=parser.get('postboxaccess', 'path')
 
-        knowncommands = ['add','del','list']
+        if len(msg) < 2:
+            self._say(callback, channel, 'Syntax: !postbox list|add|del [user]')
 
-        if msg[0] not in knowncommands:
-            callback.say(channel, 'Syntax: !postbox add|del|list [user]')
-            return
+        if msg[0] == 'add':
+            mbstatus = self.fhandler.onaccesslist(msg[1], accessfile)
+            if mbstatus == 1:
+                self._say(callback, channel, '{0} already has a mailbox.'.format(msg[1]))
+            elif mbstatus == 0:
+                mbstatus = self.fhandler.addtoaccesslist(msg[1], accessfile)
+                if mbstatus:
+                    self._say(callback, channel, 'Failed to create mailbox.')
+                else:
+                    self._say(callback, channel, 'Created Mailbox for {0}.'.format(msg[1]))
+            else:
+                self._say(callback, channel, 'Ooops something is broken')
+
+        elif msg[0] == 'del':
+            mbstatus = self.fhandler.deletefromaccesslist(msg[1], accessfile)
+            if mbstatus:
+                self._say(callback, channel, 'Failed to delete mailbox.')
+            else:
+                self._say(callback, channel, 'Deleted mailbox for {0}.'.format(msg[1]))
+
+        elif msg[0] == 'list':
+            mbstatus = self.fhandler.onaccesslist(msg[1], accessfile)
+            if mbstatus < 0:
+                self._say(callback, channel, 'Ooops something is broken')
+            elif mbstatus == 1:
+                self._say(callback, channel, '{0} already has a mailbox.'.format(msg[1]))
+            else:
+                self._say(callback, channel, '{0} has no mailbox.'.format(msg[1]))
 
         else:
-            if msg[0] == 'add':
-                if self.fhandler.onaccesslist(msg[1]):
-                    callback.say(channel, '{0} already has a mailbox'.format(msg[1]))
-                else:
-                    self.fhandler.addtoaccesslist(msg[1])
-                    if self.fhandler.onaccesslist(msg[1]):
-                        callback.say(channel, 'Created mailbox for {0}'.format(msg[1]))
-                    else:
-                        callback.say(channel, 'Failed to create mailbox')
-
-            elif msg[0] == 'del':
-                if not self.fhandler.onaccesslist(msg[1]):
-                    callback.say(channel, '{0} has no mailbox'.format(msg[1]))
-                else:
-                    self.fhandler.deletefromaccesslist(msg[1])
-                    if not self.fhandler.onaccesslist(msg[1]):
-                        callback.say(channel, 'Deleted mailbox for {0}'.format(msg[1]))
-                    else:
-                        callback.say(channel, 'Failed to delete mailbox')
-            elif msg[0] == 'list':
-                if len(msg) > 1:
-                    if self.fhandler.onaccesslist(msg[1]):
-                        callback.say(channel, '{0} already has Mailbox'.format(msg[1]))
-                    else:
-                        callback.say(channel, '{0} has no Mailbox'.format(msg[1]))
-                else:
-                    callback.say(channel, 'Syntax: !postbox list user')
+            self._say(callback, channel, 'Syntax: !postbox list|add|del [user]')
