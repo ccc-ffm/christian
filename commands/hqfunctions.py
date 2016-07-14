@@ -4,13 +4,13 @@ import sys
 
 class HQFunctions(object):
 
-    def join(self, channel, callback, msg=None, nck=None, hq=None, keys=None, pb=None):
+    def join(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
         """
         Join users to HQ, update the status
         """
         #Open HQ if its closed
         if hq.hq_status is 'closed':
-            self.open(channel, callback, msg, nck, hq, keys, pb)
+            self.open(channel, callback, msg, nck, hq)
 
 
         #user is joining himself
@@ -38,7 +38,7 @@ class HQFunctions(object):
 
             callback.topic(channel,hq.get_hq_status())
 
-    def leave(self, channel, callback, msg=None, nck=None, hq=None,keys=None, pb=None):
+    def leave(self, channel, callback, msg=None, nck=None, hq=None,keys=None, **kwargs):
         """
         Leave person from HQ, update the status
         """
@@ -70,7 +70,7 @@ class HQFunctions(object):
             #Update the topic
             callback.topic(channel,hq.get_hq_status())
 
-    def whois(self, channel, callback, msg=None, nck=None, hq=None,keys=None, pb=None):
+    def whois(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
         """
         List all persons in the hq
         """
@@ -84,7 +84,7 @@ class HQFunctions(object):
             else:
                 callback.say(channel,'%s are here.' %', '.join(userset))
 
-    def open(self, channel, callback, msg=None, nck=None, hq=None,keys=None, pb=None):
+    def open(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
         """
         Opens the HQ
         """
@@ -101,7 +101,7 @@ class HQFunctions(object):
             callback.say(channel,'The HQ is already open since {0}.'.format(hq.status_since))
 
 
-    def private(self, channel, callback, msg=None, nck=None, hq=None,keys=None, pb=None):
+    def private(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
         """
         Open the HQ for members only
         """
@@ -116,7 +116,7 @@ class HQFunctions(object):
         else:
             callback.say(channel,'The HQ is already open for members only since {0}.'.format(hq.status_since))
 
-    def close(self, channel, callback, msg=None, nck=None, hq=None,keys=None, pb=None):
+    def close(self, channel, callback, msg=None, nck=None, hq=None,**kwargs):
         """
         Change HQ status to closed
         Update topic
@@ -127,10 +127,10 @@ class HQFunctions(object):
             hq.hq_close()
             callback.topic(channel,hq.get_hq_status())
 
-    def dirty(self, channel, callback, msg=None, nck=None, hq=None,keys=None, pb=None):
+    def dirty(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
         hq.hq_dirty()
         callback.say(channel,'The HQ is dirty!')
 
-    def clean(self, channel, callback, msg=None, nck=None, hq=None,keys=None, pb=None):
+    def clean(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
         hq.hq_clean()
         callback.say(channel,'The HQ is clean \o/')
