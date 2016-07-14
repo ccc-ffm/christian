@@ -7,7 +7,7 @@ class HelpFunctions(object):
     def __init__(self):
         fhandler = Filehandler()
 
-    def help(self, channel, callback, msg=None, nck=None, hq=None, keys=None, pb=None):
+    def help(self, channel, callback, nck=None, **kwargs):
         if channel == '#ccc-ffm-intern':
             helptext = self.fhandler.getcontent("./mylines/help.txt")
             callback.msg(nck, helptext, 120)
