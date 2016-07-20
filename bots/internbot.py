@@ -3,7 +3,6 @@ from commands import EasterEggFunctions
 from commands import PostboxFunctions
 from commands import KeyFunctions
 from commands import HelpFunctions
-from commands import ServiceFunctions
 
 class Intern(HQFunctions,
              EasterEggFunctions,

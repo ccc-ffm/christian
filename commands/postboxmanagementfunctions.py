@@ -9,7 +9,7 @@ class PostboxMgmtFunctions(object):
     def _say(self, callback, channel, msg):
         callback.say(channel, msg)
 
-    def postbox(self, channel, callback, msg=None, nck=None, hq=None, keys=None, pb=None):
+    def postbox(self, channel, callback, msg=None, **kwargs):
         parser = SafeConfigParser()
         parser.read('./config/postbox.cfg')
         accessfile=parser.get('postboxaccess', 'path')

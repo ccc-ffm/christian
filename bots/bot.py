@@ -25,6 +25,7 @@ class Bot(irc.IRCClient):
     keys = Keys()
     postbox = Postbox()
 
+
     def __init__(self):
         self.wait_max_sec = 6000
         self.current_wait_sec = 1
@@ -101,28 +102,34 @@ class Bot(irc.IRCClient):
     @classmethod
     def publicaction(self, message, nick, channel, instance):
 
-        command = message[0].translate(None, '!')
         publicactions = Public()
+        command = message[0].translate(None, '!')
         action = None
 
         try:
             action = getattr(publicactions,command)
         except:
             raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(internactions.__class__.__name__,action))
+                    format(publicactions.__class__.__name__, command))
+
+        kwargs = {'msg': message[1:],
+                  'nck': nick
+                 }
+
+        action(channel, instance, **kwargs)
 
     @classmethod
     def internaction(self, message, nick, channel, instance):
 
-        command = message[0].translate(None, '!')
         internactions = Intern()
+        command = message[0].translate(None, '!')
         action = None
 
         try:
             action=getattr(internactions,command)
         except:
             raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(internactions.__class__.__name__, action))
+                    format(internactions.__class__.__name__, command))
 
         kwargs = {'msg': message[1:],
                   'nck': nick,
@@ -136,30 +143,38 @@ class Bot(irc.IRCClient):
     @classmethod
     def infraaction(self, message, nick, channel, instance):
 
-        command = message[0].translate(None, '!')
         infraactions = Infra()
+        command = message[0].translate(None, '!')
         action = None
 
         try:
-            action = getattr(publicactions,command)
+            action = getattr(infraactions, command)
         except:
             raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(infraactions.__class__.__name__,action))
+                    format(infraactions.__class__.__name__, command))
 
+        kwargs = {'msg': message[1:],
+                  'nck': nick,
+                  'pb': self.postbox
+                 }
+
+        action(channel, instance, **kwargs)
 
     @classmethod
     def vorstandaction(self, message, nick, channel, instance):
 
-        command = message[0].translate(None, '!')
         vorstandactions = Vorstand()
+        command = message[0].translate(None, '!')
         action = None
 
         try:
             action = getattr(vorstandactions,command)
         except:
             raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(vorstandactions.__class__.__name__,action))
+                    format(vorstandactions.__class__.__name__,command))
 
+        kwargs={}
+        action(channel, instance, **kwargs)
 
     def privmsg(self, user, channel, message):
         """This is called on any message seen in the given channel"""
@@ -181,7 +196,7 @@ class Bot(irc.IRCClient):
 
         #Pass the message to its method based on the channel
         if channel == '#ccc-ffm-intern':
-            self.internaction(msg, nick, channel,self)
+            self.internaction(msg, nick, channel, self)
 
         elif channel == '#ccc-ffm':
             self.publicaction(msg, nick, channel, self)
@@ -189,5 +204,5 @@ class Bot(irc.IRCClient):
         elif channel == '#ccc-ffm-infra':
             self.infraaction(msg, nick, channel,self)
 
-        elif channel == '#ccc-ffm-vorstandaction':
+        elif channel == '#ccc-ffm-vorstand':
             self.vorstandaction(msg, nick, channel, self)
