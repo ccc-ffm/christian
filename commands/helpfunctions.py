@@ -5,7 +5,7 @@ from utils import Filehandler
 class HelpFunctions(object):
 
     def __init__(self):
-        fhandler = Filehandler()
+        self.fhandler = Filehandler()
 
     def help(self, channel, callback, nck=None, **kwargs):
         if channel == '#ccc-ffm-intern':
