@@ -1,5 +1,7 @@
 from commands import ServiceFunctions
+from commands import HelpFunctions
 
-class Public(ServiceFunctions):
-    def __init(self):
+class Public(ServiceFunctions, HelpFunctions):
+
+    def __init__(self):
         super(Public,self).__init__()
