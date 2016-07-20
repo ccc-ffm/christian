@@ -1,26 +1,34 @@
 from utils import Filehandler
 from ConfigParser import SafeConfigParser
+import re
 
 class PostboxFunctions(object):
 
     def __init__(self):
         self.fhandler = Filehandler()
 
-    def tell(self, channel, callback, msg=None, nck=None, hq=None, keys=None, pb=None):
-        parser = SafeConfigParser()
-        parser.read('./config/postbox.cfg')
-        accessfile=parser.get('postboxaccess', 'path')
+    def tell(self, channel, callback, msg=None, nck=None, pb=None, **kwargs):
+        try:
+            parser = SafeConfigParser()
+            parser.read('./config/postbox.cfg')
+            accessfile=parser.get('postboxaccess', 'path')
+        except:
+            raise Exception('Failed to read the config')
 
         if len(msg) < 2:
             callback.say(channel,'Syntax: !tell [receipient] [message]')
 
         else:
-            receipient = msg[0]
             try:
+                receipient = msg[0]
                 mbstatus=self.fhandler.onaccesslist(receipient, accessfile)
                 if mbstatus == 1:
-                    pb.savemessage(nck,receipient,msg[1:])
-                    callback.say(channel, 'Message saved')
+                    msgstring=" ".join(msg[1:])
+                    if re.search('[a-zA-Z0-9]+',msgstring) is not None:
+                        pb.savemessage(nck,receipient,msg[1:])
+                        callback.say(channel, 'Message saved')
+                    else:
+                        callback.say(channel, 'Message can\'t be empty')
                 else:
                     callback.say(channel,'Unknown user {0}'.format(receipient))
             except:
