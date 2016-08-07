@@ -80,7 +80,6 @@ class Bot(irc.IRCClient):
         """This will get called when the bot joins the channel."""
         # set topic on join
         LOG.log("info", "joined channel: "+channel)
-        self.say(channel, "Hello my friends! I'm back!")
         """Intern channel specific"""
         if channel == '#testabot2':
             #self.msg('ChanServ', 'access #ccc-ffm-infra list')
