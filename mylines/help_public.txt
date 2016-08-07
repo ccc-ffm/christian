@@ -1,4 +1,4 @@
 usage: [command] [arg]
 !donnerstag - Tell something about our public meeting.
 
-See http://wiki.ccc-ffm.de/irc:help for details.
+See https://wiki.ccc-ffm.de/irc:help for details.

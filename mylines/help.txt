@@ -5,4 +5,4 @@ usage: [command] [arg]
 !join users - Join users to HQ, Joins yourself if no argument is given.
 !leave users - Leave users. Leaves yourself if no argument is given.
 
-See http://wiki.ccc-ffm.de/irc:help for details.
+See https://wiki.ccc-ffm.de/irc:help for details.

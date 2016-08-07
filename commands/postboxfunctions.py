@@ -25,7 +25,9 @@ class PostboxFunctions(object):
                 if mbstatus == 1:
                     msgstring=" ".join(msg[1:])
                     if re.search('[a-zA-Z0-9]+',msgstring) is not None:
-                        pb.savemessage(nck,receipient,msg[1:])
+                        #strip away / and .. from message
+                        msgstring = msgstring.translate(None, './')
+                        pb.savemessage(nck,receipient,msgstring)
                         callback.say(channel, 'Message saved')
                     else:
                         callback.say(channel, 'Message can\'t be empty')
