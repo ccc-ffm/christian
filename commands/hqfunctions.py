@@ -17,13 +17,13 @@ class HQFunctions(object):
         if len(msg) == 0:
             if nck in hq.joined_users:
                 callback.say(channel,'{0} is already here'.format(nck))
-            else:
+            elif keys.iskeyholder(nck) is False:
                 hq.hq_join(nck)
                 callback.topic(channel,hq.get_hq_status())
 
                 #Check if he owns a key, update key list
-                if keys.iskeyholder(nck):
-                    hq.hq_keyjoin(nck)
+            else:
+                hq.hq_keyjoin(nck)
         else:
             #Add users to the list of joined users.
             for user in msg:
@@ -51,8 +51,8 @@ class HQFunctions(object):
                     hq.hq_keyleave(nck)
 
                     if hq.keys_in_hq == 0:
-                        callback.say(channel,'{0} has got the last key. Lock the frontdoor!'.format(user))
-                        callback.msg(user,'You have got the last key. Lock the frontdoor!')
+                        callback.say(channel,'{0} has got the last key. Lock the frontdoor!'.format(nck))
+                        callback.msg(nck,'You have got the last key. Lock the frontdoor!')
 
         else:
             #Remove them from the list if they are joined
@@ -80,9 +80,9 @@ class HQFunctions(object):
         else:
             userset = set(hq.joined_users)
             if hq.people_in_hq == 1:
-                callback.say(channel,'%s is here.' %', '.join(userset))
+                callback.msg(nck,'%s is here.' %', '.join(userset))
             else:
-                callback.say(channel,'%s are here.' %', '.join(userset))
+                callback.msg(nck,'%s are here.' %', '.join(userset))
 
     def open(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
         """
