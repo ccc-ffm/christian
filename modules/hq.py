@@ -36,7 +36,7 @@ class HQ(object):
         self.is_clean = False
 
     def hq_join(self,user):
-        self.people_in_hq +=1
+        self.people_in_hq += 1
         self.joined_users.append(user)
 
     def hq_leave(self,user):
@@ -46,14 +46,15 @@ class HQ(object):
     def hq_keyjoin(self,user):
         self.keys_in_hq +=1
         self.joined_keys.append(user)
+        self.hq_join(user)
 
     def hq_keyleave(self,user):
         self.keys_in_hq -=1
         self.joined_keys.remove(user)
+        self.hq_leave(user)
 
     def get_hq_status(self):
-        return ('HQ is {} since {}. {} Members are here'
-                .format(self.hq_status, self.status_since, self.people_in_hq))
+        return self.hq_status, self.status_since
 
     def get_hq_clean(self):
         return self.is_clean
