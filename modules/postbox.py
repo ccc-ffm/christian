@@ -15,7 +15,7 @@ class Postbox(object):
             if os.path.getsize(self.postboxdir + receipient) > self.quotasize:
                 os.remove(self.postboxdir + receipient)
 
-
+        receipient = receipient.translate(None,'./')
         with open( self.postboxdir+receipient,'ab+') as postbox:
             msgtime = time.strftime("%Y-%m-%d %H-%M")
             msgstr = ' '.join(str(part) for part in msg)

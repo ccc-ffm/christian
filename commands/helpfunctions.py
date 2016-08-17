@@ -15,9 +15,10 @@ class HelpFunctions(object):
             helptext = self.fhandler.getcontent("./mylines/help_public.txt")
             callback.msg(nck, helptext, 120)
         elif channel == '#ccc-ffm-vorstand':
-            helptext = self.fhandler.getcontent("./mylines/help_infra.txt")
+            helptext = self.fhandler.getcontent("./mylines/help_vorstand.txt")
             callback.msg(nck, helptext, 120)
         elif channel == '#ccc-ffm-infra':
-            pass
+            helptext = self.fhandler.getcontent("./mylines/help_infra.txt")
+            callback.msg(nck, helptext, 120)
         else:
             return None

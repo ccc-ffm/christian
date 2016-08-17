@@ -1,6 +1,8 @@
+from modules import InternTopic
+
 class KeyFunctions(object):
 
-    def key(self, channel, callback, msg=None, nck=None, keys=None, **kwargs):
+    def key(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
 
         if len(msg) != 2 or ' ' in msg:
             callback.say(channel, "Syntax: !key user0 user1")
@@ -10,6 +12,8 @@ class KeyFunctions(object):
                     keys.removekeyholder(msg[0])
                     keys.addkeyholder(msg[1])
                     self.keys(channel, callback, keys)
+                    topic = InternTopic()
+                    callback.topic(channel, topic.getTopic(hq, keys))
                 else:
                     callback.say(channel, "Only one key for {0}.".format(msg[1]))
             else:
