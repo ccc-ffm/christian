@@ -14,6 +14,8 @@ class PostboxMgmtFunctions(object):
         parser.read('./config/postbox.cfg')
         accessfile=parser.get('postboxaccess', 'path')
 
+        #Sanitize msg[1]
+        msg[1]=msg[1].translate(None, './')
         if len(msg) < 2:
             self._say(callback, channel, 'Syntax: !postbox list|add|del [user]')
 
