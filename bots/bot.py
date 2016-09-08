@@ -52,7 +52,7 @@ class Bot(irc.IRCClient):
 
     def signedOn(self):
         LOG.log("notice", "Authpassword requested")
-        password = getpass.getpass('Authpassword: ')
+        password = 'supersecurepassword11!'
         LOG.log("notice", "authenticating agains nickserv...")
         self.msg('NickServ', 'identify {0} {1}'.format(self.nickname, password))
         LOG.log("notice", "...probably done?")
