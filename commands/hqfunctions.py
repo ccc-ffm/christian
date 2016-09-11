@@ -13,7 +13,7 @@ class HQFunctions(object):
         """
         #Open HQ if its closed
         if hq.hq_status is 'closed':
-            self.open(channel, callback, msg, nck, hq)
+            self.open(channel, callback, msg, nck, hq, keys)
 
         if len(msg) == 0:
             msg.append(nck)
