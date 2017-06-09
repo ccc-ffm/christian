@@ -20,11 +20,9 @@ LOG = BotLog()
 class Bot(irc.IRCClient):
     """The Bot"""
 
-    nickname = 'christian'
     hq = HQ()
     keys = Keys()
     postbox = Postbox()
-
 
     def __init__(self):
         self.wait_max_sec = 6000
@@ -32,6 +30,8 @@ class Bot(irc.IRCClient):
         self.intern_access = []
 
     def connectionMade(self):
+        self.nickname = self.factory.nickname
+        self.password = self.factory.password
         irc.IRCClient.connectionMade(self)
         self.current_wait_sec = 1
         LOG.log("notice", "conncetion established")
@@ -51,10 +51,8 @@ class Bot(irc.IRCClient):
         return newnick
 
     def signedOn(self):
-        #LOG.log("notice", "Authpassword requested")
-        password = 'supersecurepassword11!'
         LOG.log("notice", "Authenticating against NickServ...")
-        self.msg('NickServ', 'identify {0} {1}'.format(self.nickname, password))
+        self.msg('NickServ', 'identify {0} {1}'.format(self.nickname, self.password))
         LOG.log("notice", "Awaiting verification...")
 
     def noticed(self, user, channel, message):
