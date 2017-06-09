@@ -1,0 +1,3 @@
+!postbox list [user] - Check if [user] has a postbox
+!postbox add [user] - Add postbox for [user]
+!postbox del [user] - Delete postbox for [user]
