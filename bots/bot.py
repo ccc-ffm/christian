@@ -57,8 +57,16 @@ class Bot(irc.IRCClient):
         self.msg('NickServ', 'identify {0} {1}'.format(self.nickname, password))
         LOG.log("notice", "...probably done?")
 
-        for channel in self.factory.channel:
-            self.join(channel)
+    def noticed(self, user, channel, message):
+        if "NickServ" in user and "identified" in message:
+            LOG.log("info", "Received notice from " + user + " channel " + channel + " message " + message)
+            for channel in self.factory.channel:
+                self.join(channel)
+        irc.IRCClient.noticed(self, user, channel, message)
+
+    def lineReceived(self, line):
+        LOG.log("info", line)
+        irc.IRCClient.lineReceived(self, line)
 
     def userKicked(self, kickee, channel, kicker, message):
         msg = ("Hallo, der Channel {0} kann nur betreten \
