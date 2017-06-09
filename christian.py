@@ -26,9 +26,11 @@ class BotFactory(protocol.ClientFactory):
     A new protocol instance will be created each time we connect to the server.
     """
 
-    def __init__(self, channel):
+    def __init__(self, channel, nickname, password):
         self.channel = channel
         self.protocol = Bot
+        self.nickname = nickname
+        self.password = password
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -48,6 +50,8 @@ if __name__ == '__main__':
     parser.read('./config/network.cfg')
     host=parser.get('network', 'hostname')
     port=parser.getint('network', 'port')
+    nickname=parser.get('network', 'nickname')
+    password=parser.get('network', 'password')
 
     #Read channels from config file
     parser.read('./config/channels.cfg')
@@ -58,7 +62,7 @@ if __name__ == '__main__':
             chan_list.append(channel)
 
     #Factory
-    factory = BotFactory(chan_list)
+    factory = BotFactory(chan_list, nickname, password)
 
     #connect
     LOG.log("info", "connecting to "+host+" on port "+str(port))

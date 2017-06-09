@@ -67,3 +67,6 @@ postbox/
 
 #Storage
 storage/
+
+#Configuration
+config/
