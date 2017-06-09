@@ -51,14 +51,21 @@ class Bot(irc.IRCClient):
         return newnick
 
     def signedOn(self):
-        LOG.log("notice", "Authpassword requested")
+        #LOG.log("notice", "Authpassword requested")
         password = 'supersecurepassword11!'
-        LOG.log("notice", "authenticating agains nickserv...")
+        LOG.log("notice", "Authenticating against NickServ...")
         self.msg('NickServ', 'identify {0} {1}'.format(self.nickname, password))
-        LOG.log("notice", "...probably done?")
+        LOG.log("notice", "Awaiting verification...")
 
-        for channel in self.factory.channel:
-            self.join(channel)
+    def noticed(self, user, channel, message):
+        if "NickServ" in user and "identified" in message:
+            LOG.log("notice", "Successfully authenticated against NickServ")
+            for channel in self.factory.channel:
+                self.join(channel)
+
+    def lineReceived(self, line):
+        LOG.debug(line)
+        irc.IRCClient.lineReceived(self, line)
 
     def userKicked(self, kickee, channel, kicker, message):
         msg = ("Hallo, der Channel {0} kann nur betreten \
