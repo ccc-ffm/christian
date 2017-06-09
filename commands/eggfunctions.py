@@ -11,8 +11,10 @@ class EasterEggFunctions(object):
     def darkwing(self, channel, callback, **kwargs):
         """Post a random line"""
         filename = "./mylines/darkwing.txt"
-        myline = self.fhandler.getrandomline(filename)
-        callback.say(channel, myline)
+        punchline = self.fhandler.getrandomline(filename)
+        start = "Ich bin der Schrecken der die Nacht durchflattert, … "
+        end = " … Ich bin Darkwing Duck!"
+        callback.say(channel, ''.join([start, punchline, end]))
 
     def balu(self, channel, callback, **kwargs):
         """Post a random line"""
