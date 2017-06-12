@@ -60,6 +60,10 @@ class Bot(irc.IRCClient):
             LOG.log("notice", "Successfully authenticated against NickServ")
             for channel in self.factory.channel:
                 self.join(channel)
+        if "NickServ" in user and "registered" in message:
+            LOG.log("notice", "Received notice that nick is registered, reauthenticate...")
+            self.signedOn()
+
 
     def lineReceived(self, line):
         LOG.debug(line)
