@@ -73,11 +73,33 @@ class Bot(irc.IRCClient):
         LOG.debug(line)
         irc.IRCClient.lineReceived(self, line)
 
+    def irc_ERR_BANNEDFROMCHAN(self, prefix, params):
+        nick = params[-3]
+        channel = params[-2]
+        LOG.log("notice", "We are banned from channel " + channel)
+        self.unban(channel, self.nickname + "!*@*")
+
     def kickedFrom(self, channel, kicker, message):
         LOG.log("info", "We have been kicked from " + channel + " by " + kicker + "(" + message + ")")
-        LOG.log("info", "Trying to unban...")
-        self.msg('ChanServ', 'unban {0} {1}'.format(channel, self.nickname))
         self.join(channel)
+
+    def unban(self, channel, arg):
+        LOG.log("info", "Trying to unban...")
+        user, mask = arg.split('!')
+        self.mode(channel, False, "b", None, user, mask) 
+        self.msg('ChanServ', 'unban {0} {1}'.format(channel, self.nickname))
+
+    def modeChanged(self, user, channel, set, modes, args):
+        if "b" in modes:
+            for arg in args:
+                if self.nickname in arg:
+                    if(set):
+                        LOG.log("notice", "We have been banned from channel " + channel + " by " + user)
+                        self.unban(channel, arg)
+                    else:
+                        LOG.log("notice", "We have been unbanned from channel " + channel + " by " + user)
+                        self.join(channel)
+
 
     def userKicked(self, kickee, channel, kicker, message):
         msg = ("Hallo, der Channel {0} kann nur betreten \
