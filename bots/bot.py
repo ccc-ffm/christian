@@ -64,10 +64,19 @@ class Bot(irc.IRCClient):
         if "NickServ" in user and "is registered" in message:
             LOG.log("notice", "Received notice that nick is registered, reauthenticate...")
             self.signedOn()
+        if "ChanServ" in user and "Unbanned" in message:
+            LOG.log("notice", "Unbanned successfully, rejoining...")
+            for channel in self.factory.channel:
+                self.join(channel)
 
     def lineReceived(self, line):
         LOG.debug(line)
         irc.IRCClient.lineReceived(self, line)
+
+    def kickedFrom(self, channel, kicker, message):
+        LOG.log("info", "We have been kicked from " + channel + " by " + kicker + "(" + message + ")")
+        LOG.log("info", "Trying to unban...")
+        self.msg('ChanServ', 'unban {0} {1}'.format(channel, self.nickname))
 
     def userKicked(self, kickee, channel, kicker, message):
         msg = ("Hallo, der Channel {0} kann nur betreten \
