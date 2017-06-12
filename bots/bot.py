@@ -45,10 +45,11 @@ class Bot(irc.IRCClient):
         #try to reconnect
         irc.IRCClient.connectionLost(self, reason)
 
-    def alterCollidedNick(self, nickname):
-        newnick = nickname+"_"
-        LOG.log("info", "changing nick to '"+newnick+"'")
-        return newnick
+    def irc_ERR_NICKNAMEINUSE(self, prefix, params):
+        irc.IRCClient.irc_ERR_NICKNAMEINUSE(self, prefix, params)
+        LOG.log("info", "Nick " + self.nickname + " is already in use. Issue GHOST command...")
+        self.msg('NickServ', 'ghost {0} {1}'.format(self.nickname, self.password))
+        self.setNick(self.nickname)
 
     def signedOn(self):
         LOG.log("notice", "Authenticating against NickServ...")
@@ -60,10 +61,9 @@ class Bot(irc.IRCClient):
             LOG.log("notice", "Successfully authenticated against NickServ")
             for channel in self.factory.channel:
                 self.join(channel)
-        if "NickServ" in user and "registered" in message:
+        if "NickServ" in user and "is registered" in message:
             LOG.log("notice", "Received notice that nick is registered, reauthenticate...")
             self.signedOn()
-
 
     def lineReceived(self, line):
         LOG.debug(line)
