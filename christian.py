@@ -15,6 +15,7 @@ from ConfigParser import SafeConfigParser
 #Import the bots we want to create
 from bots import Bot
 from utils import BotLog, Signalhandler
+from time import sleep
 
 LOG = BotLog()
 
@@ -37,7 +38,10 @@ class BotFactory(protocol.ClientFactory):
         connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
+        """If connection fails, try again (server might be down temporarily)."""
         LOG.log("crit", "connection failed: "+str(reason))
+        sleep(5)
+        connector.connect()
 
     def getChannel(self):
         return(self.channel)
@@ -50,6 +54,7 @@ if __name__ == '__main__':
     parser.read('./config/network.cfg')
     host=parser.get('network', 'hostname')
     port=parser.getint('network', 'port')
+    usessl=parser.getboolean('network', 'ssl')
     nickname=parser.get('network', 'nickname')
     password=parser.get('network', 'password')
 
@@ -65,8 +70,11 @@ if __name__ == '__main__':
     factory = BotFactory(chan_list, nickname, password)
 
     #connect
-    LOG.log("info", "connecting to "+host+" on port "+str(port))
-    reactor.connectSSL(host, port, factory, ssl.ClientContextFactory())
+    LOG.log("info", "connecting to "+host+" on port "+str(port) + (" using SSL" if usessl else ""))
+    if usessl:
+        reactor.connectSSL(host, port, factory, ssl.ClientContextFactory())
+    else:
+        reactor.connectTCP(host, port, factory)
 
     sig = Signalhandler(factory)
     reactor.addSystemEventTrigger('before', 'shutdown', sig.savestates)
