@@ -77,6 +77,7 @@ class Bot(irc.IRCClient):
         LOG.log("info", "We have been kicked from " + channel + " by " + kicker + "(" + message + ")")
         LOG.log("info", "Trying to unban...")
         self.msg('ChanServ', 'unban {0} {1}'.format(channel, self.nickname))
+        self.join(channel)
 
     def userKicked(self, kickee, channel, kicker, message):
         msg = ("Hallo, der Channel {0} kann nur betreten \
