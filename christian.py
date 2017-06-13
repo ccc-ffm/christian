@@ -6,7 +6,8 @@
 
 
 #twisted imports
-from twisted.internet import reactor, protocol, ssl
+from twisted.internet import reactor, protocol, ssl, endpoints
+from twisted.names import client
 
 #system imports
 import sys
@@ -14,13 +15,80 @@ from ConfigParser import SafeConfigParser
 
 #Import the bots we want to create
 from bots import Bot
-from utils import BotLog, Signalhandler
+from utils import BotLog, Signalhandler, Filehandler
 from time import sleep
+
+import socket
 
 LOG = BotLog()
 
 LOG.log("notice", "Christian started")
 
+addresses = []
+addresses6 = []
+addrs = []
+factory = None
+port = ""
+host = ""
+usessl = True
+cafile = ""
+
+def addressFailed(error):
+    LOG.debug(str(error))
+    address = client.lookupAddress(host)
+    address.addCallback(gotAddress)
+    address.addErrback(addressFailed)
+
+def address6Failed(error):
+    LOG.debug(str(error))
+    address6 = client.lookupIPV6Address(host)
+    address6.addCallback(gotAddress6)
+    address6.addErrback(address6Failed)
+
+def gotAddress(result):
+    global addresses, addrs
+    for record in result[0]:
+        addresses.append(record.payload.dottedQuad())
+    addrs.extend(addresses6)
+    addrs.extend(addresses)
+    LOG.log("info", "Got the following addresses for " + host + ": " + ", ".join(addrs))
+    addrs.reverse()
+    connect_next()
+
+def gotAddress6(result):
+    global addresses6
+    for record in result[0]:
+        addresses6.append(socket.inet_ntop(socket.AF_INET6, record.payload.address))
+    address = client.lookupAddress(host)
+    address.addCallback(gotAddress)
+    address.addErrback(addressFailed)
+
+def connect_next():
+    global addresses, addresses6, addrs
+    if len(addrs) is 0:
+        """If we tried all available addresses wait a while and do another lookup"""
+        sleep(5)
+        addresses = []
+        addresses6 = []
+        address_lookup()
+    else:
+        addr = addrs.pop()
+        LOG.log("info", "connecting to " + host + "[" + addr + "] on port "+str(port) + (" using SSL" if usessl else ""))
+        if usessl:
+            """Actually verify server certificate"""
+            certData = Filehandler().getcontent(cafile)
+            authority = ssl.Certificate.loadPEM(certData)
+            options = ssl.optionsForClientTLS(u'{0}'.format(host), authority)
+            endpoint = endpoints.SSL4ClientEndpoint(reactor, addr, port, options)
+            endpoint.connect(factory)
+            #reactor.connectSSL(addr, port, factory, ssl.ClientContextFactory())
+        else:
+            reactor.connectTCP(addr, port, factory)
+
+def address_lookup():
+    address6 = client.lookupIPV6Address(host)
+    address6.addCallback(gotAddress6)
+    address6.addErrback(address6Failed)
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
@@ -40,8 +108,7 @@ class BotFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         """If connection fails, try again (server might be down temporarily)."""
         LOG.log("crit", "connection failed: "+str(reason))
-        sleep(5)
-        connector.connect()
+        connect_next()
 
     def getChannel(self):
         return(self.channel)
@@ -53,8 +120,12 @@ if __name__ == '__main__':
 
     parser.read('./config/network.cfg')
     host=parser.get('network', 'hostname')
+
+    address_lookup()
+
     port=parser.getint('network', 'port')
     usessl=parser.getboolean('network', 'ssl')
+    cafile = parser.get('network', 'cafile') if usessl else ""
     nickname=parser.get('network', 'nickname')
     password=parser.get('network', 'password')
 
@@ -68,13 +139,6 @@ if __name__ == '__main__':
 
     #Factory
     factory = BotFactory(chan_list, nickname, password)
-
-    #connect
-    LOG.log("info", "connecting to "+host+" on port "+str(port) + (" using SSL" if usessl else ""))
-    if usessl:
-        reactor.connectSSL(host, port, factory, ssl.ClientContextFactory())
-    else:
-        reactor.connectTCP(host, port, factory)
 
     sig = Signalhandler(factory)
     reactor.addSystemEventTrigger('before', 'shutdown', sig.savestates)
