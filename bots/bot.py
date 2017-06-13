@@ -243,9 +243,6 @@ class Bot(irc.IRCClient):
         if channel == '#ccc-ffm-intern':
             self.internaction(msg, nick, channel, self)
 
-        elif channel == '#chaostest':
-            self.internaction(msg, nick, channel, self)
-
         elif channel == '#ccc-ffm':
             self.publicaction(msg, nick, channel, self)
 
