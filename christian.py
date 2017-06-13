@@ -101,7 +101,6 @@ class BotFactory(protocol.ClientFactory):
         return(self.channel)
 
 if __name__ == '__main__':
-    #global factory, host, port, usessl, cafile
 
     #read Serversettings from config file
     parser = SafeConfigParser()
@@ -131,4 +130,6 @@ if __name__ == '__main__':
     sig = Signalhandler(factory)
     reactor.addSystemEventTrigger('before', 'shutdown', sig.savestates)
 
-    reactor.run() 
+    #run
+    LOG.log("info", "starting reactor")
+    reactor.run()
