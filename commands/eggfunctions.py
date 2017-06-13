@@ -28,4 +28,12 @@ class EasterEggFunctions(object):
         url = self.fhandler.getcontent(filename)
         callback.say(channel, url)
 
+    def fg(self, channel, callback, msg=None, **kwargs):
+        """Frag gnom"""
+        if len(msg):
+            callback.say(channel, "telegnom: " + " ".join(msg))
 
+    def fs(self, channel, callback, msg=None, **kwargs):
+        """Frag skorpy"""
+        if len(msg):
+            callback.say(channel, "skorpy: " + " ".join(msg))
