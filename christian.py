@@ -7,6 +7,7 @@
 
 #twisted imports
 from twisted.internet import reactor, protocol, ssl
+from twisted.names import client
 
 #system imports
 import sys
@@ -17,10 +18,60 @@ from bots import Bot
 from utils import BotLog, Signalhandler
 from time import sleep
 
+import socket
+
 LOG = BotLog()
 
 LOG.log("notice", "Christian started")
 
+addresses = []
+addresses6 = []
+addrs = []
+factory = None
+port = ""
+host = ""
+usessl = True
+
+def gotAddress(result):
+    global addresses
+    for record in result[0]:
+        addresses.append(record.payload.dottedQuad())
+        #print (record.payload.dottedQuad())
+    address_list()
+
+def gotAddress6(result):
+    global addresses6
+    for record in result[0]:
+        addresses6.append(socket.inet_ntop(socket.AF_INET6, record.payload.address))
+        #print socket.inet_ntop(socket.AF_INET6, record.payload.address)
+    address = client.lookupAddress(host)
+    address.addCallback(gotAddress)
+
+def connect_next():
+    global addresses, addresses6, addrs
+    if len(addrs) is 0:
+        sleep(5)
+        addresses = []
+        addresses6 = []
+        address_lookup()
+    else:
+        addr = addrs.pop()
+        LOG.log("info", "connecting to " + host + "[" + addr + "] on port "+str(port) + (" using SSL" if usessl else ""))
+        if usessl:
+            reactor.connectSSL(addr, port, factory, ssl.ClientContextFactory())
+        else:
+            reactor.connectTCP(addr, port, factory)
+
+def address_list():
+    global addrs
+    addrs.extend(addresses6)
+    addrs.extend(addresses)
+    addrs.reverse()
+    connect_next()
+
+def address_lookup():
+    address6 = client.lookupIPV6Address(host)
+    address6.addCallback(gotAddress6)
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
@@ -40,8 +91,7 @@ class BotFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         """If connection fails, try again (server might be down temporarily)."""
         LOG.log("crit", "connection failed: "+str(reason))
-        sleep(5)
-        connector.connect()
+        connect_next()
 
     def getChannel(self):
         return(self.channel)
@@ -53,6 +103,9 @@ if __name__ == '__main__':
 
     parser.read('./config/network.cfg')
     host=parser.get('network', 'hostname')
+
+    address_lookup()
+
     port=parser.getint('network', 'port')
     usessl=parser.getboolean('network', 'ssl')
     nickname=parser.get('network', 'nickname')
@@ -69,16 +122,7 @@ if __name__ == '__main__':
     #Factory
     factory = BotFactory(chan_list, nickname, password)
 
-    #connect
-    LOG.log("info", "connecting to "+host+" on port "+str(port) + (" using SSL" if usessl else ""))
-    if usessl:
-        reactor.connectSSL(host, port, factory, ssl.ClientContextFactory())
-    else:
-        reactor.connectTCP(host, port, factory)
-
     sig = Signalhandler(factory)
     reactor.addSystemEventTrigger('before', 'shutdown', sig.savestates)
 
-    #run
-    LOG.log("info", "starting reactor")
-    reactor.run()
+    reactor.run() 
