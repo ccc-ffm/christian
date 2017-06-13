@@ -49,18 +49,16 @@ def gotAddress(result):
     global addresses, addrs
     for record in result[0]:
         addresses.append(record.payload.dottedQuad())
-        #print (record.payload.dottedQuad())
     addrs.extend(addresses6)
     addrs.extend(addresses)
+    LOG.log("info", "Got the following addresses for " + host + ": " + ", ".join(addrs))
     addrs.reverse()
     connect_next()
 
 def gotAddress6(result):
     global addresses6
-    print "blub"
     for record in result[0]:
         addresses6.append(socket.inet_ntop(socket.AF_INET6, record.payload.address))
-        #print socket.inet_ntop(socket.AF_INET6, record.payload.address)
     address = client.lookupAddress(host)
     address.addCallback(gotAddress)
     address.addErrback(addressFailed)
