@@ -12,7 +12,7 @@ class HQFunctions(object):
         Join users to HQ, update the status
         """
         #Open HQ for members if it is closed
-        if hq.hq_status is 'closed':
+        if hq.hq_status is 'closed' or hq.hq_status is 'unknown':
             self.private(channel, callback, msg, nck, hq, keys)
 
         if len(msg) == 0:
