@@ -3,7 +3,7 @@
 from twisted.words.protocols import irc
 
 #System
-import re, getpass
+import re, subprocess
 from time import sleep
 
 #Bot modules
@@ -17,12 +17,17 @@ from utils import BotLog
 
 LOG = BotLog()
 
+def get_git_revision_short_hash():
+    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).rstrip()
+
 class Bot(irc.IRCClient):
     """The Bot"""
 
     hq = HQ()
     keys = Keys()
     postbox = Postbox()
+    versionName = "christian"
+    versionNum = get_git_revision_short_hash()
 
     def __init__(self):
         self.wait_max_sec = 6000
@@ -236,6 +241,9 @@ class Bot(irc.IRCClient):
 
         #Pass the message to its method based on the channel
         if channel == '#ccc-ffm-intern':
+            self.internaction(msg, nick, channel, self)
+
+        elif channel == '#chaostest':
             self.internaction(msg, nick, channel, self)
 
         elif channel == '#ccc-ffm':
