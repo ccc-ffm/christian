@@ -11,9 +11,9 @@ class HQFunctions(object):
         """
         Join users to HQ, update the status
         """
-        #Open HQ if its closed
+        #Open HQ for members if it is closed
         if hq.hq_status is 'closed':
-            self.open(channel, callback, msg, nck, hq, keys)
+            self.private(channel, callback, msg, nck, hq, keys)
 
         if len(msg) == 0:
             msg.append(nck)
@@ -26,7 +26,7 @@ class HQFunctions(object):
                 if keys.iskeyholder(user) is False:
                     hq.hq_join(user)
                 else:
-                   hq.hq_keyjoin(user)
+                    hq.hq_keyjoin(user)
 
     def leave(self, channel, callback, msg=None, nck=None, hq=None,keys=None, **kwargs):
         """
