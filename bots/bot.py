@@ -27,7 +27,7 @@ class Bot(irc.IRCClient):
     keys = Keys()
     postbox = Postbox()
     versionName = "christian"
-    versionNum = get_git_revision_short_hash()
+    versionNum = "git-" + get_git_revision_short_hash()
 
     def __init__(self):
         self.wait_max_sec = 6000
