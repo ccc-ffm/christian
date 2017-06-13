@@ -33,6 +33,18 @@ host = ""
 usessl = True
 cafile = ""
 
+def addressFailed(error):
+    LOG.debug(str(error))
+    address = client.lookupAddress(host)
+    address.addCallback(gotAddress)
+    address.addErrback(addressFailed)
+
+def address6Failed(error):
+    LOG.debug(str(error))
+    address6 = client.lookupIPV6Address(host)
+    address6.addCallback(gotAddress6)
+    address6.addErrback(address6Failed)
+
 def gotAddress(result):
     global addresses, addrs
     for record in result[0]:
@@ -45,11 +57,13 @@ def gotAddress(result):
 
 def gotAddress6(result):
     global addresses6
+    print "blub"
     for record in result[0]:
         addresses6.append(socket.inet_ntop(socket.AF_INET6, record.payload.address))
         #print socket.inet_ntop(socket.AF_INET6, record.payload.address)
     address = client.lookupAddress(host)
     address.addCallback(gotAddress)
+    address.addErrback(addressFailed)
 
 def connect_next():
     global addresses, addresses6, addrs
@@ -76,6 +90,7 @@ def connect_next():
 def address_lookup():
     address6 = client.lookupIPV6Address(host)
     address6.addCallback(gotAddress6)
+    address6.addErrback(address6Failed)
 
 class BotFactory(protocol.ClientFactory):
     """A factory for Bots.
