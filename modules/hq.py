@@ -22,6 +22,7 @@ class HQ(object):
         self.hq_status = 'closed'
         self.update_time()
         self.people_in_hq = 0
+        self.keys_in_hq = 0
         del(self.joined_users[:])
         del(self.joined_keys[:])
 
