@@ -19,6 +19,7 @@ class HQFunctions(object):
             msg.append(nck)
 
         for user in msg:
+            user = user.strip()
             if user in hq.joined_users:
                 callback.say(channel,'{0} is already here'.format(nck))
             elif user.isspace() is False and len(user) != 0:
@@ -35,6 +36,7 @@ class HQFunctions(object):
             msg.append(nck)
 
         for user in msg:
+            user = user.strip()
             if keys.iskeyholder(user) is False:
                 hq.hq_leave(user)
             else:

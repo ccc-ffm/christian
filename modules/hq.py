@@ -40,8 +40,9 @@ class HQ(object):
         self.joined_users.append(user)
 
     def hq_leave(self,user):
-        self.people_in_hq -=1
-        self.joined_users.remove(user)
+        if user in self.joined_users:
+            self.people_in_hq -=1
+            self.joined_users.remove(user)
 
     def hq_keyjoin(self,user):
         self.keys_in_hq +=1
@@ -49,8 +50,9 @@ class HQ(object):
         self.hq_join(user)
 
     def hq_keyleave(self,user):
-        self.keys_in_hq -=1
-        self.joined_keys.remove(user)
+        if user in self.joined_keys:
+            self.keys_in_hq -=1
+            self.joined_keys.remove(user)
         self.hq_leave(user)
 
     def get_hq_status(self):
