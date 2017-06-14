@@ -6,9 +6,9 @@
 
 
 #twisted imports
-from twisted.internet import reactor, protocol, ssl, endpoints
+from twisted.internet import reactor, protocol, ssl, endpoints, task
 from twisted.application.internet import ClientService
-from twisted.names import client
+from twisted.names import client, dns
 
 #system imports
 import sys
@@ -33,7 +33,6 @@ port = ""
 host = ""
 usessl = True
 cafile = ""
-reconnector = None
 
 def addressFailed(error):
     LOG.debug(str(error))
@@ -48,9 +47,12 @@ def address6Failed(error):
     address6.addErrback(address6Failed)
 
 def gotAddress(result):
-    global addresses, addrs
+    global addresses, addresses6, addrs
+    addresses = []
     for record in result[0]:
-        addresses.append(record.payload.dottedQuad())
+        if isinstance(record.payload, dns.Record_A):
+            addresses.append(record.payload.dottedQuad())
+    addrs = []
     addrs.extend(addresses6)
     addrs.extend(addresses)
     LOG.log("info", "Got the following addresses for " + host + ": " + ", ".join(addrs))
@@ -59,33 +61,48 @@ def gotAddress(result):
 
 def gotAddress6(result):
     global addresses6
+    addresses6 = []
     for record in result[0]:
-        addresses6.append(socket.inet_ntop(socket.AF_INET6, record.payload.address))
+        if isinstance(record.payload, dns.Record_AAAA):
+            addresses6.append(socket.inet_ntop(socket.AF_INET6, record.payload.address))
     address = client.lookupAddress(host)
     address.addCallback(gotAddress)
     address.addErrback(addressFailed)
 
+def checkFailure(reconnector):
+    failedAttempts =  reconnector._machine if hasattr(reconnector, '_machine') else reconnector._failedAttempts
+    if failedAttempts > 1:
+        reconnector.stopService()
+
 def connectionFailed(reason):
     LOG.log("crit", "connection failed: "+str(reason))
-    reconnector.stopService()
     connect_next()
 
 def connect_next():
-    global addresses, addresses6, addrs, waitForConnection, reconnector
+    global addresses, addresses6, addrs
     if len(addrs) is 0:
         """If we tried all available addresses wait a while and do another lookup"""
         sleep(5)
-        addresses = []
-        addresses6 = []
         address_lookup()
     else:
+        sleep(1)
+        addresses = []
+        addresses6 = []
         addr = addrs.pop()
         LOG.log("info", "connecting to " + host + "[" + addr + "] on port "+str(port) + (" using SSL" if usessl else ""))
         if usessl:
-            """Actually verify server certificate"""
-            certData = Filehandler().getcontent(cafile)
-            authority = ssl.Certificate.loadPEM(certData)
-            options = ssl.optionsForClientTLS(u'{0}'.format(host), authority)
+            # Don't verify if noverify is set
+            if cafile == "noverify":
+                print "noverify"
+                options = ssl.ClientContextFactory()
+            # Verify using platformTrust
+            elif not cafile:
+                options = ssl.optionsForClientTLS(u'{0}'.format(host))
+            # Verify using ca-certificate-file
+            else:
+                certData = Filehandler().getcontent(cafile)
+                authority = ssl.Certificate.loadPEM(certData)
+                options = ssl.optionsForClientTLS(u'{0}'.format(host), authority)
             endpoint = endpoints.SSL4ClientEndpoint(reactor, addr, port, options)
             #endpoint.connect(factory)
             #reactor.connectSSL(addr, port, factory, ssl.ClientContextFactory())
@@ -94,7 +111,12 @@ def connect_next():
             #reactor.connectTCP(addr, port, factory)
         
         reconnector = ClientService(endpoint, factory)
-        waitForConnection = reconnector.whenConnected(failAfterFailures=2)
+        #Workaround for twisted < 17.5.0
+        checkFailedLoop = task.LoopingCall(checkFailure, reconnector)
+        checkFailedLoop.start(1)
+        #waitForConnection = reconnector.whenConnected(failAfterFailures=2)
+        waitForConnection = reconnector.whenConnected()
+        waitForConnection.addCallback(lambda x: checkFailedLoop.stop())
         waitForConnection.addErrback(connectionFailed)
         reconnector.startService()
 
@@ -138,9 +160,12 @@ if __name__ == '__main__':
 
     port=parser.getint('network', 'port')
     usessl=parser.getboolean('network', 'ssl')
-    cafile = parser.get('network', 'cafile') if usessl else ""
     nickname=parser.get('network', 'nickname')
     password=parser.get('network', 'password')
+    try:
+        cafile = parser.get('network', 'cafile') if usessl else ""
+    except:
+        cafile = None
 
     #Read channels from config file
     parser.read('./config/channels.cfg')
