@@ -7,6 +7,7 @@
 
 #twisted imports
 from twisted.internet import reactor, protocol, ssl, endpoints
+from twisted.application.internet import ClientService
 from twisted.names import client
 
 #system imports
@@ -32,6 +33,7 @@ port = ""
 host = ""
 usessl = True
 cafile = ""
+reconnector = None
 
 def addressFailed(error):
     LOG.debug(str(error))
@@ -63,8 +65,13 @@ def gotAddress6(result):
     address.addCallback(gotAddress)
     address.addErrback(addressFailed)
 
+def connectionFailed(reason):
+    LOG.log("crit", "connection failed: "+str(reason))
+    reconnector.stopService()
+    connect_next()
+
 def connect_next():
-    global addresses, addresses6, addrs
+    global addresses, addresses6, addrs, waitForConnection, reconnector
     if len(addrs) is 0:
         """If we tried all available addresses wait a while and do another lookup"""
         sleep(5)
@@ -80,10 +87,16 @@ def connect_next():
             authority = ssl.Certificate.loadPEM(certData)
             options = ssl.optionsForClientTLS(u'{0}'.format(host), authority)
             endpoint = endpoints.SSL4ClientEndpoint(reactor, addr, port, options)
-            endpoint.connect(factory)
+            #endpoint.connect(factory)
             #reactor.connectSSL(addr, port, factory, ssl.ClientContextFactory())
         else:
-            reactor.connectTCP(addr, port, factory)
+            endpoint = endpoints.TCP4ClientEndpoint(reactor, addr, port)
+            #reactor.connectTCP(addr, port, factory)
+        
+        reconnector = ClientService(endpoint, factory)
+        waitForConnection = reconnector.whenConnected(failAfterFailures=2)
+        waitForConnection.addErrback(connectionFailed)
+        reconnector.startService()
 
 def address_lookup():
     address6 = client.lookupIPV6Address(host)

@@ -4,7 +4,7 @@ from twisted.words.protocols import irc
 
 #System
 import re, subprocess
-from time import sleep
+from time import sleep, time
 
 #Bot modules
 from bots.internbot import Intern
@@ -28,6 +28,7 @@ class Bot(irc.IRCClient):
     postbox = Postbox()
     versionName = "christian"
     versionNum = "git-" + get_git_revision_short_hash()
+    timestamp = 0
 
     def __init__(self):
         self.wait_max_sec = 6000
@@ -39,7 +40,7 @@ class Bot(irc.IRCClient):
         self.password = self.factory.password
         irc.IRCClient.connectionMade(self)
         self.current_wait_sec = 1
-        LOG.log("notice", "conncetion established")
+        LOG.log("notice", "connection established")
 
     def connectionLost(self, reason):
         LOG.log("crit", "connection lost: "+str(reason))
@@ -76,7 +77,15 @@ class Bot(irc.IRCClient):
 
     def lineReceived(self, line):
         LOG.debug(line)
+        self.timestamp = time()
         irc.IRCClient.lineReceived(self, line)
+
+    def _sendHeartbeat(self):
+        irc.IRCClient._sendHeartbeat(self)
+        seconds = int(time() - self.timestamp)
+        if self.timestamp and seconds > self.heartbeatInterval:
+            LOG.log("info", "No data received for " + str(seconds) + " seconds, aborting connection...") 
+            self.transport.abortConnection()
 
     def irc_ERR_BANNEDFROMCHAN(self, prefix, params):
         nick = params[-3]
