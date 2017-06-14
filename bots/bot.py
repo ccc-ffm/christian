@@ -12,7 +12,7 @@ from bots.publicbot import Public
 from bots.infrabot import Infra
 from bots.vorstandbot import Vorstand
 
-from modules import HQ, Keys, Postbox
+from modules import HQ, Keys, Postbox, InternTopic
 from utils import BotLog
 
 LOG = BotLog()
@@ -25,6 +25,7 @@ class Bot(irc.IRCClient):
 
     hq = HQ()
     keys = Keys()
+    internTopic = InternTopic()
     postbox = Postbox()
     versionName = "christian"
     versionNum = "git-" + get_git_revision_short_hash()
@@ -229,6 +230,11 @@ class Bot(irc.IRCClient):
 
         kwargs={}
         action(channel, instance, **kwargs)
+
+    def topicUpdated(self, user, channel, newTopic):
+        nick, _, host = user.partition('!')
+        if channel == '#ccc-ffm-intern' and nick != self.nickname:
+            self.topic(channel, self.internTopic.getTopic(self.hq, self.keys))
 
     def privmsg(self, user, channel, message):
         """This is called on any message seen in the given channel"""
