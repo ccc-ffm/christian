@@ -36,12 +36,14 @@ cafile = ""
 
 def addressFailed(error):
     LOG.debug(str(error))
+    sleep(5)
     address = client.lookupAddress(host)
     address.addCallback(gotAddress)
     address.addErrback(addressFailed)
 
 def address6Failed(error):
     LOG.debug(str(error))
+    sleep(5)
     address6 = client.lookupIPV6Address(host)
     address6.addCallback(gotAddress6)
     address6.addErrback(address6Failed)
@@ -70,7 +72,8 @@ def gotAddress6(result):
     address.addErrback(addressFailed)
 
 def checkFailure(reconnector):
-    failedAttempts =  reconnector._machine if hasattr(reconnector, '_machine') else reconnector._failedAttempts
+    failedAttempts =  reconnector._machine._failedAttempts if hasattr(reconnector, '_machine') else reconnector._failedAttempts
+    print "checkFailure: " + str(failedAttempts)
     if failedAttempts > 1:
         reconnector.stopService()
 
