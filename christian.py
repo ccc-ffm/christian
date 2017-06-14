@@ -120,7 +120,7 @@ def connect_next():
         #waitForConnection = reconnector.whenConnected(failAfterFailures=2)
         waitForConnection = reconnector.whenConnected()
         waitForConnection.addCallback(lambda x: checkFailedLoop.stop())
-        waitForConnection.addErrback(connectionFailed)
+        waitForConnection.addErrback(lambda reason: [checkFailedLoop.stop(), connectionFailed(reason)])
         reconnector.startService()
 
 def address_lookup():
