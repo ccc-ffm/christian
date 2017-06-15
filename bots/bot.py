@@ -12,7 +12,7 @@ from bots.publicbot import Public
 from bots.infrabot import Infra
 from bots.vorstandbot import Vorstand
 
-from modules import HQ, Keys, Postbox, InternTopic
+from modules import HQ, Keys, Postbox, InternTopic, Status
 from utils import BotLog
 
 LOG = BotLog()
@@ -23,7 +23,8 @@ def get_git_revision_short_hash():
 class Bot(irc.IRCClient):
     """The Bot"""
 
-    hq = HQ()
+    status = Status()
+    hq = HQ(status)
     keys = Keys()
     internTopic = InternTopic()
     postbox = Postbox()
@@ -35,6 +36,11 @@ class Bot(irc.IRCClient):
         self.wait_max_sec = 6000
         self.current_wait_sec = 1
         self.intern_access = []
+        self.status.callback = self.updateStatus
+
+    def updateStatus(self, status):
+        self.hq.hq_set(status)
+        self.topicUpdated("mqtt", "#chaostest", status)
 
     def connectionMade(self):
         self.nickname = self.factory.nickname
@@ -42,6 +48,8 @@ class Bot(irc.IRCClient):
         irc.IRCClient.connectionMade(self)
         self.current_wait_sec = 1
         LOG.log("notice", "connection established")
+        self.status.connect(self.factory.mqtthost, self.factory.mqttport, self.factory.mqttusessl, 
+                self.factory.mqttcafile, self.factory.mqtttopic, self.factory.mqttuser, self.factory.mqttpassword)
 
     def connectionLost(self, reason):
         LOG.log("crit", "connection lost: "+str(reason))
@@ -233,7 +241,7 @@ class Bot(irc.IRCClient):
 
     def topicUpdated(self, user, channel, newTopic):
         nick, _, host = user.partition('!')
-        if channel == '#ccc-ffm-intern' and nick != self.nickname:
+        if channel == '#chaostest' and nick != self.nickname:
             self.topic(channel, self.internTopic.getTopic(self.hq, self.keys))
 
     def privmsg(self, user, channel, message):
@@ -255,7 +263,7 @@ class Bot(irc.IRCClient):
         msg = message.split(" ")
 
         #Pass the message to its method based on the channel
-        if channel == '#ccc-ffm-intern':
+        if channel == '#chaostest':
             self.internaction(msg, nick, channel, self)
 
         elif channel == '#ccc-ffm':

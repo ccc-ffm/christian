@@ -73,7 +73,7 @@ def gotAddress6(result):
 
 def checkFailure(reconnector):
     failedAttempts =  reconnector._machine._failedAttempts if hasattr(reconnector, '_machine') else reconnector._failedAttempts
-    print "checkFailure: " + str(failedAttempts)
+    LOG.debug("checkFailure: " + str(failedAttempts))
     if failedAttempts > 1:
         reconnector.stopService()
 
@@ -96,7 +96,7 @@ def connect_next():
         if usessl:
             # Don't verify if noverify is set
             if cafile == "noverify":
-                print "noverify"
+                LOG.log("warning", "noverify set, not verifying SSL certificate")
                 options = ssl.ClientContextFactory()
             # Verify using platformTrust
             elif not cafile:
@@ -106,7 +106,7 @@ def connect_next():
                 certData = Filehandler().getcontent(cafile)
                 authority = ssl.Certificate.loadPEM(certData)
                 options = ssl.optionsForClientTLS(u'{0}'.format(host), authority)
-            endpoint = endpoints.SSL4ClientEndpoint(reactor, addr, port, options)
+            endpoint = endpoints.SSL4ClientEndpoint(reactor, str(addr), port, options)
             #endpoint.connect(factory)
             #reactor.connectSSL(addr, port, factory, ssl.ClientContextFactory())
         else:
@@ -133,11 +133,19 @@ class BotFactory(protocol.ClientFactory):
     A new protocol instance will be created each time we connect to the server.
     """
 
-    def __init__(self, channel, nickname, password):
+    def __init__(self, channel, nickname, password, 
+            mqtthost, mqttport, mqttusessl, mqttcafile, mqtttopic, mqttuser, mqttpassword):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
         self.password = password
+        self.mqtthost = mqtthost
+        self.mqttport = mqttport
+        self.mqttusessl = mqttusessl
+        self.mqttcafile = mqttcafile
+        self.mqtttopic = mqtttopic
+        self.mqttuser = mqttuser
+        self.mqttpassword = mqttpassword
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -178,8 +186,20 @@ if __name__ == '__main__':
     for key, channel in channels:
             chan_list.append(channel)
 
+    #Read mqtt-status settings from config
+    parser.read('./config/status.cfg')
+    mqtthost=parser.get('status', 'hostname')
+    mqttport=parser.getint('status', 'port')
+    mqttusessl=parser.getboolean('status', 'ssl')
+    mqttcafile=parser.get('status', 'cafile')
+    mqtttopic=parser.get('status', 'topic')
+    mqttuser=parser.get('status', 'username')
+    mqttpassword=parser.get('status', 'password')
+
     #Factory
-    factory = BotFactory(chan_list, nickname, password)
+    factory = BotFactory(chan_list, nickname, password, 
+            mqtthost, mqttport, mqttusessl, mqttcafile, mqtttopic, mqttuser, mqttpassword)
+
 
     sig = Signalhandler(factory)
     reactor.addSystemEventTrigger('before', 'shutdown', sig.savestates)

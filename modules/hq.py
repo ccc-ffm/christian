@@ -2,7 +2,7 @@ from datetime import datetime
 
 class HQ(object):
 
-    def __init__(self):
+    def __init__(self, status):
         self.people_in_hq = 0
         self.keys_in_hq = 0
         self.joined_users = []
@@ -10,6 +10,15 @@ class HQ(object):
         self.status_since = datetime.now().strftime('%Y-%m-%d %H:%M')
         self.is_clean = True
         self.joined_keys = []
+        self.status = status
+
+    def hq_set(self, status):
+        if status == "open":
+            self.hq_open()
+        elif status == "closed":
+            self.hq_close()
+        elif status == "private":
+            self.hq_private()
 
     def update_time(self):
         self.status_since = datetime.now().strftime('%Y-%m-%d %H:%M')
@@ -17,6 +26,7 @@ class HQ(object):
     def hq_open(self):
         self.hq_status = 'open'
         self.update_time()
+        self.status.setStatus('open')
 
     def hq_close(self):
         self.hq_status = 'closed'
@@ -25,10 +35,12 @@ class HQ(object):
         self.keys_in_hq = 0
         del(self.joined_users[:])
         del(self.joined_keys[:])
+        self.status.setStatus('closed')
 
     def hq_private(self):
         self.hq_status = 'private'
         self.update_time()
+        self.status.setStatus('private')
 
     def hq_clean(self):
         self.is_clean = True
