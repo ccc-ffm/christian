@@ -40,7 +40,7 @@ class Bot(irc.IRCClient):
 
     def updateStatus(self, status):
         self.hq.hq_set(status)
-        self.topicUpdated("mqtt", "#chaostest", status)
+        self.topicUpdated("mqtt", "#ccc-ffm-intern", status)
 
     def connectionMade(self):
         self.nickname = self.factory.nickname
@@ -241,7 +241,7 @@ class Bot(irc.IRCClient):
 
     def topicUpdated(self, user, channel, newTopic):
         nick, _, host = user.partition('!')
-        if channel == '#chaostest' and nick != self.nickname:
+        if channel == '#ccc-ffm-intern' and nick != self.nickname:
             self.topic(channel, self.internTopic.getTopic(self.hq, self.keys))
 
     def privmsg(self, user, channel, message):
@@ -263,7 +263,7 @@ class Bot(irc.IRCClient):
         msg = message.split(" ")
 
         #Pass the message to its method based on the channel
-        if channel == '#chaostest':
+        if channel == '#ccc-ffm-intern':
             self.internaction(msg, nick, channel, self)
 
         elif channel == '#ccc-ffm':
