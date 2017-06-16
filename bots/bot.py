@@ -30,6 +30,7 @@ class Bot(irc.IRCClient):
     postbox = Postbox()
     versionName = "christian"
     versionNum = "git-" + get_git_revision_short_hash()
+    sourceURL = ""
     timestamp = 0
 
     def __init__(self):
