@@ -1,4 +1,5 @@
 usage: [command] [arg]
 !donnerstag - Tell something about our public meeting.
+!status - Get current status of HQ
 
 See https://wiki.ccc-ffm.de/irc:help for details.

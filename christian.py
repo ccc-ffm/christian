@@ -133,20 +133,27 @@ class BotFactory(protocol.ClientFactory):
     A new protocol instance will be created each time we connect to the server.
     """
 
-    def __init__(self, channel, nickname, password, 
-            mqtthost, mqttport, mqttusessl, mqttcafile, mqtttopic, mqttuser, mqttpassword, mqttidentity):
+    def __init__(self, channel, nickname, password, MQTT_host, MQTT_port,
+            MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
+            MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
+            MQTT_power):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
         self.password = password
-        self.mqtthost = mqtthost
-        self.mqttport = mqttport
-        self.mqttusessl = mqttusessl
-        self.mqttcafile = mqttcafile
-        self.mqtttopic = mqtttopic
-        self.mqttuser = mqttuser
-        self.mqttpassword = mqttpassword
-        self.mqttidentity = mqttidentity
+        self.MQTT_host = MQTT_host
+        self.MQTT_port = MQTT_port
+        self.MQTT_ssl = MQTT_ssl
+        self.MQTT_ca = MQTT_ca
+        self.MQTT_topic = MQTT_topic
+        self.MQTT_user = MQTT_user
+        self.MQTT_pass = MQTT_pass
+        self.MQTT_id = MQTT_id
+        self.MQTT_bunteslicht = MQTT_bunteslicht
+        self.MQTT_sound = MQTT_sound
+        self.MQTT_switch = MQTT_switch
+        self.MQTT_ambientlight = MQTT_ambientlight
+        self.MQTT_power = MQTT_power
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -189,21 +196,43 @@ if __name__ == '__main__':
 
     #Read mqtt-status settings from config
     parser.read('./config/status.cfg')
-    mqtthost=parser.get('status', 'hostname')
-    mqttport=parser.getint('status', 'port')
-    mqttusessl=parser.getboolean('status', 'ssl')
-    mqttcafile=parser.get('status', 'cafile')
-    mqtttopic=parser.get('status', 'topic')
-    mqttuser=parser.get('status', 'username')
-    mqttpassword=parser.get('status', 'password')
+    MQTT_host=parser.get('status', 'hostname')
+    MQTT_port=parser.getint('status', 'port')
+    MQTT_ssl=parser.getboolean('status', 'ssl')
+    MQTT_ca=parser.get('status', 'cafile')
+    MQTT_topic=parser.get('status', 'topic')
+    MQTT_user=parser.get('status', 'username')
+    MQTT_pass=parser.get('status', 'password')
     try:
-        mqttidentity = parser.get('status', 'identity')
+        MQTT_id = parser.get('status', 'identity')
     except:
-        mqttidentity = None
+        MQTT_id = None
+    try:
+        MQTT_bunteslicht = parser.get('status', 'bunteslicht')
+    except:
+        MQTT_bunteslicht = None
+    try:
+        MQTT_sound = parser.get('status', 'sound')
+    except:
+        MQTT_sound = None
+    try:
+        MQTT_switch = parser.get('status', 'switch')
+    except:
+        MQTT_switch = None
+    try:
+        MQTT_ambientlight = parser.get('status', 'ambientlight')
+    except:
+        MQTT_ambientlight = None
+    try:
+        MQTT_power = parser.get('status', 'power')
+    except:
+        MQTT_power = None
 
     #Factory
-    factory = BotFactory(chan_list, nickname, password, 
-            mqtthost, mqttport, mqttusessl, mqttcafile, mqtttopic, mqttuser, mqttpassword, mqttidentity)
+    factory = BotFactory(chan_list, nickname, password, MQTT_host, MQTT_port,
+            MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
+            MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
+            MQTT_power)
 
 
     sig = Signalhandler(factory)

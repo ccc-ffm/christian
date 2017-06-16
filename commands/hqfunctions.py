@@ -44,6 +44,24 @@ class HQFunctions(object):
                 if hq.keys_in_hq == 0:
                     callback.say(channel,'{0} has got the last key. Lock the frontdoor!'.format(user))
 
+    def status(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
+        """
+        Get HQ status
+        """
+        hqcolor = "04"
+        if hq.status.status == "open":
+            hqcolor = "03"
+        elif hq.status.status == "private":
+            hqcolor = "07"
+        message = "HQ is currently " + "\x02\x03" + hqcolor + ",99" + hq.status.status + "\x0F" + "\n"
+        message += "Buntes Licht is " + "\x02\x03" + ("03" if hq.status.bunteslicht_s == "on" else "04") + ",99" + hq.status.bunteslicht_s + "\x0F" + "\n"
+        message += "Sound is " + "\x02\x03" + ("03" if hq.status.sound_s == "on" else "04") + ",99" + hq.status.sound_s + "\x0F" + "\n"
+        message += "Switch is " + "\x02\x03" + ("03" if hq.status.switch_s == "on" else "04") + ",99" + hq.status.switch_s + "\x0F" + "\n"
+        message += "Ambient Light (Lab) is " + "\x02\x03" + ("03" if hq.status.ambientlight_s == "on" else "04") + ",99" + hq.status.ambientlight_s + "\x0F" + "\n"
+        message += "Current power consumption: " + "\x02" + hq.status.power_s + "\x0F" + " Watts\n"
+
+        callback.msg(channel, message)
+
 
     def whois(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
         """

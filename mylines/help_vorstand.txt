@@ -1,3 +1,3 @@
-!postbox list [user] - Check if [user] has a postbox
-!postbox add [user] - Add postbox for [user]
-!postbox del [user] - Delete postbox for [user]
+usage: [command] [arg]
+
+See https://wiki.ccc-ffm.de/irc:help for details.

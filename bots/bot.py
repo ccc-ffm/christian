@@ -51,8 +51,11 @@ class Bot(irc.IRCClient):
         self.current_wait_sec = 1
         LOG.log("notice", "connection established")
         LOG.log("info", "Connecting to mqtt broker...")
-        self.status.connect(self.factory.mqtthost, self.factory.mqttport, self.factory.mqttusessl, 
-                self.factory.mqttcafile, self.factory.mqtttopic, self.factory.mqttuser, self.factory.mqttpassword, self.factory.mqttidentity)
+        f = self.factory
+        self.status.connect(f.MQTT_host, f.MQTT_port, f.MQTT_ssl, f.MQTT_ca,
+                f.MQTT_topic, f.MQTT_user, f.MQTT_pass, f.MQTT_id,
+                f.MQTT_bunteslicht, f.MQTT_sound, f.MQTT_switch,
+                f.MQTT_ambientlight, f.MQTT_power)
 
     def connectionLost(self, reason):
         LOG.log("crit", "connection lost: "+str(reason))
@@ -169,7 +172,8 @@ class Bot(irc.IRCClient):
                     format(publicactions.__class__.__name__, command))
 
         kwargs = {'msg': message[1:],
-                  'nck': nick
+                  'nck': nick,
+                  'hq': self.hq
                  }
 
         action(channel, instance, **kwargs)
