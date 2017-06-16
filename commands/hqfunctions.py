@@ -69,13 +69,13 @@ class HQFunctions(object):
         """
 
         if hq.people_in_hq == 0:
-            callback.msg(nck,'No one is here')
+            callback.msg(channel,'No one is here')
         else:
             userset = set(hq.joined_users)
             if hq.people_in_hq == 1:
-                callback.msg(nck,'%s is here.' %', '.join(userset))
+                callback.msg(channel,'%s is here.' %', '.join(userset))
             else:
-                callback.msg(nck,'%s are here.' %', '.join(userset))
+                callback.msg(channel,'%s are here.' %', '.join(userset))
 
     def open(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
         """
