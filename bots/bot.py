@@ -40,6 +40,7 @@ class Bot(irc.IRCClient):
         self.status.callback = self.updateStatus
 
     def updateStatus(self, status):
+        LOG.debug("update status: " + status)
         self.hq.hq_set(status)
         self.topicUpdated("mqtt", "#ccc-ffm-intern", status)
 
@@ -49,6 +50,7 @@ class Bot(irc.IRCClient):
         irc.IRCClient.connectionMade(self)
         self.current_wait_sec = 1
         LOG.log("notice", "connection established")
+        LOG.log("info", "Connecting to mqtt broker...")
         self.status.connect(self.factory.mqtthost, self.factory.mqttport, self.factory.mqttusessl, 
                 self.factory.mqttcafile, self.factory.mqtttopic, self.factory.mqttuser, self.factory.mqttpassword)
 
@@ -143,25 +145,11 @@ class Bot(irc.IRCClient):
 
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
-        # set topic on join
         LOG.log("info", "joined channel: "+channel)
+        # set topic on join
         """Intern channel specific"""
-        if channel == '#testabot2':
-            #self.msg('ChanServ', 'access #ccc-ffm-infra list')
-            self.msg('ChanServ','hallo')
-            if self.haq.isopen == "open":
-                self.topic(channel, "HQ is open since " + self.haq.statussince)
-            elif self.haq.isopen == "private":
-                self.topic(channel, \
-                    "HQ is open for members only since " + self.haq.statussince)
-            elif self.haq.isopen == "closed":
-                self.topic(channel, "HQ is closed")
-            else:
-                #if proper status is unknown ask for it
-                self.say(channel, 'I don\'t know the current status'
-                'of the HQ. Please double-check the status and set'
-                'it to the proper value!')
-
+        if channel == '#ccc-ffm-intern' and self.hq.hq_status != 'unknown':
+            self.topicUpdated("mqtt", "#ccc-ffm-intern", "status")
 
     @classmethod
     def publicaction(self, message, nick, channel, instance):
@@ -242,7 +230,7 @@ class Bot(irc.IRCClient):
 
     def topicUpdated(self, user, channel, newTopic):
         nick, _, host = user.partition('!')
-        if channel == '#ccc-ffm-intern' and nick != self.nickname:
+        if channel == '#ccc-ffm-intern' and nick != self.nickname and nick != self.hostname:
             self.topic(channel, self.internTopic.getTopic(self.hq, self.keys))
 
     def privmsg(self, user, channel, message):

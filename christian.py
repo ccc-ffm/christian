@@ -106,7 +106,7 @@ def connect_next():
                 certData = Filehandler().getcontent(cafile)
                 authority = ssl.Certificate.loadPEM(certData)
                 options = ssl.optionsForClientTLS(u'{0}'.format(host), authority)
-            endpoint = endpoints.SSL4ClientEndpoint(reactor, str(addr), port, options)
+            endpoint = endpoints.SSL4ClientEndpoint(reactor, addr, port, options)
             #endpoint.connect(factory)
             #reactor.connectSSL(addr, port, factory, ssl.ClientContextFactory())
         else:

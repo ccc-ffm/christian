@@ -10,7 +10,6 @@ class Status(object):
     def __init__(self):
         self.callback = None
         self.status = "unknown"
-        self.ignore = False
     
     def connect(self, host, port, usessl, cafile, topic, user, password):
         self.host = host
@@ -18,7 +17,6 @@ class Status(object):
         self.topic = topic
         self.user = user
         self.password = password
-        self.status = "unknown"
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
