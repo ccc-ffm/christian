@@ -11,13 +11,14 @@ class Status(object):
         self.callback = None
         self.status = "unknown"
     
-    def connect(self, host, port, usessl, cafile, topic, user, password):
+    def connect(self, host, port, usessl, cafile, topic, user, password, identity):
         self.host = host
         self.port = port
         self.topic = topic
         self.user = user
         self.password = password
-        self.client = mqtt.Client()
+        self.identity = identity
+        self.client = mqtt.Client(client_id=identity)
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         if usessl:
@@ -28,6 +29,10 @@ class Status(object):
         self.client.username_pw_set(self.user, self.password)
         self.client.connect(self.host, self.port, 60)
         self.client.loop_start()
+
+    def disconnect(self):
+        self.client.loop_stop()
+        self.client.disconnect()
 
     def on_connect(self, client, userdata, flags, rc):
         LOG.log("info", "Connected to mqtt-broker")
@@ -46,5 +51,4 @@ class Status(object):
 
     def setStatus(self, status):
         self.status = status
-        self.ignore = True
         self.client.publish(self.topic, self.status) 

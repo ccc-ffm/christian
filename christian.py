@@ -134,7 +134,7 @@ class BotFactory(protocol.ClientFactory):
     """
 
     def __init__(self, channel, nickname, password, 
-            mqtthost, mqttport, mqttusessl, mqttcafile, mqtttopic, mqttuser, mqttpassword):
+            mqtthost, mqttport, mqttusessl, mqttcafile, mqtttopic, mqttuser, mqttpassword, mqttidentity):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
@@ -146,6 +146,7 @@ class BotFactory(protocol.ClientFactory):
         self.mqtttopic = mqtttopic
         self.mqttuser = mqttuser
         self.mqttpassword = mqttpassword
+        self.mqttidentity = mqttidentity
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -195,10 +196,14 @@ if __name__ == '__main__':
     mqtttopic=parser.get('status', 'topic')
     mqttuser=parser.get('status', 'username')
     mqttpassword=parser.get('status', 'password')
+    try:
+        mqttidentity = parser.get('status', 'identity')
+    except:
+        mqttidentity = None
 
     #Factory
     factory = BotFactory(chan_list, nickname, password, 
-            mqtthost, mqttport, mqttusessl, mqttcafile, mqtttopic, mqttuser, mqttpassword)
+            mqtthost, mqttport, mqttusessl, mqttcafile, mqtttopic, mqttuser, mqttpassword, mqttidentity)
 
 
     sig = Signalhandler(factory)

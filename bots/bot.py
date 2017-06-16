@@ -52,7 +52,7 @@ class Bot(irc.IRCClient):
         LOG.log("notice", "connection established")
         LOG.log("info", "Connecting to mqtt broker...")
         self.status.connect(self.factory.mqtthost, self.factory.mqttport, self.factory.mqttusessl, 
-                self.factory.mqttcafile, self.factory.mqtttopic, self.factory.mqttuser, self.factory.mqttpassword)
+                self.factory.mqttcafile, self.factory.mqtttopic, self.factory.mqttuser, self.factory.mqttpassword, self.factory.mqttidentity)
 
     def connectionLost(self, reason):
         LOG.log("crit", "connection lost: "+str(reason))
@@ -61,6 +61,7 @@ class Bot(irc.IRCClient):
             self.current_wait_sec = self.current_wait_sec * 2
             sleep(self.current_wait_sec)
         #try to reconnect
+        self.status.disconnect()
         irc.IRCClient.connectionLost(self, reason)
 
     def irc_ERR_NICKNAMEINUSE(self, prefix, params):
@@ -125,6 +126,13 @@ class Bot(irc.IRCClient):
                     else:
                         LOG.log("notice", "We have been unbanned from channel " + channel + " by " + user)
                         self.join(channel)
+        if channel == "#ccc-ffm-intern":
+            if "o" in modes:
+                for arg in args:
+                    # if we know the status (from mqtt) set it once we joined and got op
+                    if self.nickname in arg and set and self.hq.hq_status != 'unknown':
+                        LOG.log("notice", "Got op, setting topic")
+                        self.topicUpdated("mqtt", "#ccc-ffm-intern", "status")
 
 
     def userKicked(self, kickee, channel, kicker, message):
@@ -146,10 +154,6 @@ class Bot(irc.IRCClient):
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         LOG.log("info", "joined channel: "+channel)
-        # set topic on join
-        """Intern channel specific"""
-        if channel == '#ccc-ffm-intern' and self.hq.hq_status != 'unknown':
-            self.topicUpdated("mqtt", "#ccc-ffm-intern", "status")
 
     @classmethod
     def publicaction(self, message, nick, channel, instance):
