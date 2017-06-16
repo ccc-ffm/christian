@@ -3,10 +3,9 @@ import os
 class Keys(object):
 
     def __init__(self):
+        self.keyholders = []
         fpath = './storage/keys.txt'
-        if  not os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
-            self.keyholders = []
-        else:
+        if os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
             with open('./storage/keys.txt','r') as statefile:
                 self.keyholders = [line.strip() for line in statefile]
 

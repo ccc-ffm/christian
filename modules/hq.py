@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 class HQ(object):
@@ -11,6 +12,23 @@ class HQ(object):
         self.is_clean = True
         self.joined_keys = []
         self.status = status
+
+        fpath = './storage/users.txt'
+        if os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
+            with open('./storage/users.txt','r') as userfile:
+                self.joined_users = [line.strip() for line in userfile]
+        self.joined_users = list(set(self.joined_users))
+        self.people_in_hq = len(self.joined_users)
+
+        fpath = './storage/keys.txt'
+        if os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
+            with open('./storage/keys.txt','r') as statefile:
+                keys = [line.strip() for line in statefile]
+        keys = list(set(self.joined_users))
+        for user in self.joined_users:
+            if user in keys:
+                self.joined_keys.append(user)
+        self.keys_in_hq = len(self.joined_keys)
 
     def hq_set(self, status):
         if status == "open":
