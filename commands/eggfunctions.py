@@ -1,12 +1,18 @@
 """Some eastereggs just for fun"""
 
-from utils import Filehandler
+from utils import Filehandler, BotLog
+from time import time
+
+LOG = BotLog()
 
 class EasterEggFunctions(object):
     """Easter Egg functions"""
 
+    timestamp = 0
+
     def __init__(self):
         self.fhandler = Filehandler()
+        self.timestamp = 0
 
     def darkwing(self, channel, callback, **kwargs):
         """Post a random line"""
@@ -42,11 +48,16 @@ class EasterEggFunctions(object):
         self.gude(channel, callback, **kwargs)
 
     def gude(self, channel, callback, **kwargs):
-        """Post ascii-art logo"""
-        filename = "./mylines/ascii.txt"
-        color = "\x02\x0300,12"
-        endformat = "\x0F"
-        gude = ""
-        for line in open(filename, "r"):
-            gude += color + line.strip() + endformat + "\n"
-        callback.say(channel, gude)
+        seconds = time() - self.timestamp
+        if not self.timestamp or seconds > 120:
+            self.timestamp = time()
+            """Post ascii-art logo"""
+            filename = "./mylines/ascii.txt"
+            color = "\x02\x0300,12"
+            endformat = "\x0F"
+            gude = ""
+            for line in open(filename, "r"):
+                gude += color + line.strip() + endformat + "\n"
+            callback.say(channel, gude)
+        else:
+            LOG.log("info", "Flood protection, ignoring command")
