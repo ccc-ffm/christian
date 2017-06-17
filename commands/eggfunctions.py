@@ -37,3 +37,16 @@ class EasterEggFunctions(object):
         """Frag skorpy"""
         if len(msg):
             callback.say(channel, "skorpy: " + " ".join(msg))
+
+    def gud3(self, channel, callback, **kwargs):
+        self.gude(channel, callback, **kwargs)
+
+    def gude(self, channel, callback, **kwargs):
+        """Post ascii-art logo"""
+        filename = "./mylines/ascii.txt"
+        color = "\x02\x0300,12"
+        endformat = "\x0F"
+        gude = ""
+        for line in open(filename, "r"):
+            gude += color + line.strip() + endformat + "\n"
+        callback.say(channel, gude)
