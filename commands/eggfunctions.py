@@ -1,5 +1,7 @@
 """Some eastereggs just for fun"""
 
+import random
+
 from utils import Filehandler, BotLog
 from time import time
 
@@ -53,7 +55,8 @@ class EasterEggFunctions(object):
             self.timestamp = time()
             """Post ascii-art logo"""
             filename = "./mylines/ascii.txt"
-            color = "\x02\x0300,12"
+            colors = ["\x02\x0300,12", "\x02\x0304,01"]
+            color = random.choice(colors)
             endformat = "\x0F"
             gude = ""
             for line in open(filename, "r"):
