@@ -19,7 +19,7 @@ class ServiceFunctions(object):
         if hq.status.status == "open":
             hqcolor = "03"
             hqstatus = "open"
-        elif hq.status.status == "private":
+        elif hq.status.status == "private" or hq.status.status == "closed":
             hqstatus = "closed"
         message = "HQ is currently " + "\x02\x03" + hqcolor + ",99" + hqstatus + "\x0F" + "\n"
         callback.msg(channel, message)

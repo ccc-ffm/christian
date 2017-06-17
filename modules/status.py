@@ -50,7 +50,7 @@ class Status(object):
         self.client.subscribe(self.power)
 
     def on_message(self, client, userdata, msg):
-        LOG.log("info", "Received message from mqtt-broker: " + msg.topic + " " + msg.payload)
+        LOG.debug("Received message from mqtt-broker: " + msg.topic + " " + msg.payload)
         if msg.topic == self.topic:
             if not msg.payload == self.status:
                 self.status = msg.payload
