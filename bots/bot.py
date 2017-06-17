@@ -31,6 +31,7 @@ class Bot(irc.IRCClient):
     versionName = "christian"
     versionNum = "git-" + get_git_revision_short_hash()
     sourceURL = ""
+    lineRate = .2
     timestamp = 0
 
     def __init__(self):
