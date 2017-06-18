@@ -53,12 +53,12 @@ class HQFunctions(object):
             hqcolor = "03"
         elif hq.status.status == "private":
             hqcolor = "07"
-        message = "HQ is currently " + "\x02\x03" + hqcolor + ",99" + hq.status.status + "\x0F" + "\n"
-        message += "Buntes Licht is " + "\x02\x03" + ("03" if hq.status.bunteslicht_s == "on" else "04") + ",99" + hq.status.bunteslicht_s + "\x0F" + "\n"
-        message += "Sound is " + "\x02\x03" + ("03" if hq.status.sound_s == "on" else "04") + ",99" + hq.status.sound_s + "\x0F" + "\n"
-        message += "Switch is " + "\x02\x03" + ("03" if hq.status.switch_s == "on" else "04") + ",99" + hq.status.switch_s + "\x0F" + "\n"
-        message += "Ambient Light (Lab) is " + "\x02\x03" + ("03" if hq.status.ambientlight_s == "on" else "04") + ",99" + hq.status.ambientlight_s + "\x0F" + "\n"
-        message += "Current power consumption: " + "\x02" + hq.status.power_s + "\x0F" + " Watts\n"
+        message = "HQ is currently " + "\x02\x03" + hqcolor + hq.status.status + "\x03\x02\x0F" + "\n"
+        message += "Buntes Licht is " + "\x02\x03" + ("03" if hq.status.bunteslicht_s == "on" else "04") + hq.status.bunteslicht_s + "\x03\x02\x0F" + "\n"
+        message += "Sound is " + "\x02\x03" + ("03" if hq.status.sound_s == "on" else "04") + hq.status.sound_s + "\x03\x02\x0F" + "\n"
+        message += "Switch is " + "\x02\x03" + ("03" if hq.status.switch_s == "on" else "04") + hq.status.switch_s + "\x03\x02\x0F" + "\n"
+        message += "Ambient Light (Lab) is " + "\x02\x03" + ("03" if hq.status.ambientlight_s == "on" else "04") + hq.status.ambientlight_s + "\x03\x02\x0F" + "\n"
+        message += "Current power consumption: " + "\x02" + hq.status.power_s + "\x02\x0F" + " Watts\n"
 
         callback.msg(channel, message)
 
