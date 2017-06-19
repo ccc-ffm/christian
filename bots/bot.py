@@ -7,13 +7,7 @@ import re, subprocess
 from time import sleep, time
 
 #import commands
-from commands import EasterEggFunctions
-from commands import HQFunctions
-from commands import KeyFunctions
-from commands import ServiceFunctions
-from commands import HelpFunctions
-from commands import PostboxFunctions
-from commands import PostboxMgmtFunctions
+from commands import EasterEggFunctions, HQFunctions, KeyFunctions, ServiceFunctions, HelpFunctions, PostboxFunctions, PostboxMgmtFunctions
 
 from modules import HQ, Keys, Postbox, InternTopic, Status
 from utils import BotLog
