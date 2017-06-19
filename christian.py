@@ -177,10 +177,15 @@ if __name__ == '__main__':
     #read Serversettings from config file
     parser = SafeConfigParser()
 
-    if os.path.isfile('./config/config.cfg'):
-        parser.read('./config/config.cfg')
+    if "--config" in sys.argv:
+        config = sys.argv[sys.argv.index("--config") + 1]
     else:
-        LOG.log("error", "Configuration not found")
+        config = "./config/config.cfg"
+    if os.path.isfile(config):
+        parser.read(config)
+    else:
+        LOG.log("error", "Configuration file not found")
+        exit(1)
 
     #parser.read('./config/network.cfg')
     host=parser.get('network', 'hostname')
