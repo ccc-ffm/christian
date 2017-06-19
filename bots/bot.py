@@ -133,13 +133,13 @@ class Bot(irc.IRCClient):
                     else:
                         LOG.log("notice", "We have been unbanned from channel " + channel + " by " + user)
                         self.join(channel)
-        if channel == "#ccc-ffm-intern":
+        if channel.lstrip("#") in self.factory.channel and 'HQFunctions' in self.factory.channel[channel.lstrip('#')]:
             if "o" in modes:
                 for arg in args:
                     # if we know the status (from mqtt) set it once we joined and got op
                     if self.nickname in arg and set and self.hq.hq_status != 'unknown':
                         LOG.log("notice", "Got op, setting topic")
-                        self.topicUpdated("mqtt", "#ccc-ffm-intern", "status")
+                        self.topicUpdated("mqtt", channel, "status")
 
 
     def userKicked(self, kickee, channel, kicker, message):
@@ -197,7 +197,7 @@ class Bot(irc.IRCClient):
 
     def topicUpdated(self, user, channel, newTopic):
         nick, _, host = user.partition('!')
-        if channel == '#ccc-ffm-intern' and nick != self.nickname and nick != self.hostname:
+        if nick != self.nickname and nick != self.hostname and channel.lstrip("#") in self.factory.channel and 'HQFunctions' in self.factory.channel[channel.lstrip('#')]:
             self.topic(channel, self.internTopic.getTopic(self.hq, self.keys))
 
     def privmsg(self, user, channel, message):

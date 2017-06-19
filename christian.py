@@ -191,6 +191,12 @@ if __name__ == '__main__':
     channels = parser.items( 'channels' )
     chan_list = {channel: channel_functions.split(",") for channel, channel_functions in channels}
 
+    chan_list_stripped = {}
+    for chan, actions in chan_list.iteritems():
+        chan_list_stripped[chan] = [x.strip() for x in actions]
+
+    chan_list = chan_list_stripped
+
     #Read mqtt-status settings from config
     parser.read('./config/status.cfg')
     MQTT_host=parser.get('status', 'hostname')
