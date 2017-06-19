@@ -1,2 +1,0 @@
-class Vorstand(object):
-    pass

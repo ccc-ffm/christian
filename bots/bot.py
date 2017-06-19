@@ -195,81 +195,6 @@ class Bot(irc.IRCClient):
             LOG.log("info", "Command `" + command + "` not implemented in actions associated with channel `" + channel + "`")
             return
 
-
-    @classmethod
-    def publicaction(self, message, nick, channel, instance):
-
-        command = message[0].translate(None, '!')
-        action = None
-
-        try:
-            action = getattr(self.publicactions,command)
-        except:
-            raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(self.publicactions.__class__.__name__, command))
-
-        kwargs = {'msg': message[1:],
-                  'nck': nick,
-                  'hq': self.hq
-                 }
-
-        action(channel, instance, **kwargs)
-
-    @classmethod
-    def internaction(self, message, nick, channel, instance):
-
-        command = message[0].translate(None, '!')
-        action = None
-
-        try:
-            action=getattr(self.internactions,command)
-        except:
-            raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(self.internactions.__class__.__name__, command))
-
-        kwargs = {'msg': message[1:],
-                  'nck': nick,
-                  'hq': self.hq,
-                  'keys': self.keys,
-                  'pb': self.postbox
-                 }
-        action(channel, instance, **kwargs)
-
-
-    @classmethod
-    def infraaction(self, message, nick, channel, instance):
-
-        command = message[0].translate(None, '!')
-        action = None
-
-        try:
-            action = getattr(self.infraactions, command)
-        except:
-            raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(self.infraactions.__class__.__name__, command))
-
-        kwargs = {'msg': message[1:],
-                  'nck': nick,
-                  'pb': self.postbox
-                 }
-
-        action(channel, instance, **kwargs)
-
-    @classmethod
-    def vorstandaction(self, message, nick, channel, instance):
-
-        command = message[0].translate(None, '!')
-        action = None
-
-        try:
-            action = getattr(self.vorstandactions,command)
-        except:
-            raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(self.vorstandactions.__class__.__name__,command))
-
-        kwargs={}
-        action(channel, instance, **kwargs)
-
     def topicUpdated(self, user, channel, newTopic):
         nick, _, host = user.partition('!')
         if channel == '#ccc-ffm-intern' and nick != self.nickname and nick != self.hostname:
@@ -294,15 +219,3 @@ class Bot(irc.IRCClient):
         msg = message.split(" ")
 
         self.do_action(msg, nick, channel, self)
-#        #Pass the message to its method based on the channel
-#        if channel == '#ccc-ffm-intern':
-#            self.do_action(msg, nick, channel, self)
-#
-#        elif channel == '#ccc-ffm':
-#            self.publicaction(msg, nick, channel, self)
-#
-#        elif channel == '#ccc-ffm-infra':
-#            self.infraaction(msg, nick, channel,self)
-#
-#        elif channel == '#ccc-ffm-vorstand':
-#            self.vorstandaction(msg, nick, channel, self)
