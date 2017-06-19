@@ -6,13 +6,18 @@ class PostboxMgmtFunctions(object):
     def __init__(self):
         self.fhandler = Filehandler()
 
+    def help(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
+        helpmsg = "!postbox list <user> - Check if <user> has a postbox.\n"
+        helpmsg += "!postbox add <user> - Add postbox for <user>.\n"
+        helpmsg += "!postbox del <user> - Delete postbox for <user>.\n"
+        callback.msg(nck, helpmsg)
+
     def _say(self, callback, channel, msg):
         callback.say(channel, msg)
 
-    def postbox(self, channel, callback, msg=None, **kwargs):
-        parser = SafeConfigParser()
-        parser.read('./config/postbox.cfg')
-        accessfile=parser.get('postboxaccess', 'path')
+    def postbox(self, channel, callback, msg=None, pb=None, **kwargs):
+
+        accessfile = pb.accessfile
 
         #Sanitize msg[1]
         msg[1]=msg[1].translate(None, './')

@@ -77,4 +77,4 @@ class Status(object):
 
     def setStatus(self, status):
         self.status = status
-        self.client.publish(self.topic, self.status) 
+        self.client.publish(self.topic, self.status)

@@ -1,9 +1,0 @@
-usage: [command] [arg] 
-!open - Change the topic to HQ open.
-!private - Change the topic to HQ open for members.
-!close - Change the topic to HQ closed.
-!join users - Join users to HQ, Joins yourself if no argument is given.
-!leave users - Leave users. Leaves yourself if no argument is given.
-!status - Display status of HQ
-
-See https://wiki.ccc-ffm.de/irc:help for details.

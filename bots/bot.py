@@ -6,11 +6,8 @@ from twisted.words.protocols import irc
 import re, subprocess
 from time import sleep, time
 
-#Bot modules
-from bots.internbot import Intern
-from bots.publicbot import Public
-from bots.infrabot import Infra
-from bots.vorstandbot import Vorstand
+#import commands
+from commands import EasterEggFunctions, HQFunctions, KeyFunctions, ServiceFunctions, HelpFunctions, PostboxFunctions, PostboxMgmtFunctions
 
 from modules import HQ, Keys, Postbox, InternTopic, Status
 from utils import BotLog
@@ -24,19 +21,15 @@ class Bot(irc.IRCClient):
     """The Bot"""
 
     status = Status()
-    hq = HQ(status)
-    keys = Keys()
+    hq = None
+    keys = None
+    postbox = None
     internTopic = InternTopic()
-    postbox = Postbox()
     versionName = "christian"
     versionNum = "git-" + get_git_revision_short_hash()
     sourceURL = ""
     lineRate = .2
     timestamp = 0
-    internactions = Intern()
-    publicactions = Public()
-    infraactions = Infra()
-    vorstandactions = Vorstand()
 
     def __init__(self):
         self.wait_max_sec = 6000
@@ -50,6 +43,10 @@ class Bot(irc.IRCClient):
         self.topicUpdated("mqtt", "#ccc-ffm-intern", status)
 
     def connectionMade(self):
+        self.keys = self.factory.keys
+        self.hq = self.factory.hq
+        self.hq.status = self.status
+        self.postbox = self.factory.postbox
         self.nickname = self.factory.nickname
         self.password = self.factory.password
         irc.IRCClient.connectionMade(self)
@@ -134,13 +131,13 @@ class Bot(irc.IRCClient):
                     else:
                         LOG.log("notice", "We have been unbanned from channel " + channel + " by " + user)
                         self.join(channel)
-        if channel == "#ccc-ffm-intern":
+        if channel.lstrip("#") in self.factory.channel and 'HQFunctions' in self.factory.channel[channel.lstrip('#')]:
             if "o" in modes:
                 for arg in args:
                     # if we know the status (from mqtt) set it once we joined and got op
                     if self.nickname in arg and set and self.hq.hq_status != 'unknown':
                         LOG.log("notice", "Got op, setting topic")
-                        self.topicUpdated("mqtt", "#ccc-ffm-intern", "status")
+                        self.topicUpdated("mqtt", channel, "status")
 
 
     def userKicked(self, kickee, channel, kicker, message):
@@ -164,82 +161,41 @@ class Bot(irc.IRCClient):
         LOG.log("info", "joined channel: "+channel)
 
     @classmethod
-    def publicaction(self, message, nick, channel, instance):
+    def do_action(self, message, nick, channel, instance):
 
         command = message[0].translate(None, '!')
         action = None
+        channel_actions = {}
 
-        try:
-            action = getattr(self.publicactions,command)
-        except:
-            raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(self.publicactions.__class__.__name__, command))
+        chan = channel.lstrip('#')
+        if chan in instance.factory.channel:
+            channel_actions = instance.factory.channel[chan]
+            LOG.log("notice", "actions associated with channel `" + channel + "`: " + str(channel_actions))
+        found = False
+        for actions in channel_actions:
+            actions = actions.strip()
+            try:
+                action = getattr(globals()[actions](),command) if globals().has_key(actions) else None
+                if action:
+                    LOG.log("info", "Found command `" + command + "` in `" + actions + "`")
+                    kwargs = {'msg': message[1:],
+                              'nck': nick,
+                              'hq': instance.hq,
+                              'keys': instance.keys,
+                              'pb': instance.postbox
+                             }
 
-        kwargs = {'msg': message[1:],
-                  'nck': nick,
-                  'hq': self.hq
-                 }
-
-        action(channel, instance, **kwargs)
-
-    @classmethod
-    def internaction(self, message, nick, channel, instance):
-
-        command = message[0].translate(None, '!')
-        action = None
-
-        try:
-            action=getattr(self.internactions,command)
-        except:
-            raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(self.internactions.__class__.__name__, command))
-
-        kwargs = {'msg': message[1:],
-                  'nck': nick,
-                  'hq': self.hq,
-                  'keys': self.keys,
-                  'pb': self.postbox
-                 }
-        action(channel, instance, **kwargs)
-
-
-    @classmethod
-    def infraaction(self, message, nick, channel, instance):
-
-        command = message[0].translate(None, '!')
-        action = None
-
-        try:
-            action = getattr(self.infraactions, command)
-        except:
-            raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(self.infraactions.__class__.__name__, command))
-
-        kwargs = {'msg': message[1:],
-                  'nck': nick,
-                  'pb': self.postbox
-                 }
-
-        action(channel, instance, **kwargs)
-
-    @classmethod
-    def vorstandaction(self, message, nick, channel, instance):
-
-        command = message[0].translate(None, '!')
-        action = None
-
-        try:
-            action = getattr(self.vorstandactions,command)
-        except:
-            raise NotImplementedError("Class `{}` does not implement `{}`".
-                    format(self.vorstandactions.__class__.__name__,command))
-
-        kwargs={}
-        action(channel, instance, **kwargs)
+                    found = True
+                    action(channel, instance, **kwargs)
+            except:
+                pass
+        if not found:
+            LOG.log("info", "Command `" + command + "` not implemented in actions associated with channel `" + channel + "`")
+            return
 
     def topicUpdated(self, user, channel, newTopic):
         nick, _, host = user.partition('!')
-        if channel == '#ccc-ffm-intern' and nick != self.nickname and nick != self.hostname:
+        if nick != self.nickname and nick != self.hostname and channel.lstrip("#") in self.factory.channel and 'HQFunctions' in self.factory.channel[channel.lstrip('#')]:
             self.topic(channel, self.internTopic.getTopic(self.hq, self.keys))
 
     def privmsg(self, user, channel, message):
@@ -260,15 +216,4 @@ class Bot(irc.IRCClient):
             message = re.sub(alias, nickname, message)
         msg = message.split(" ")
 
-        #Pass the message to its method based on the channel
-        if channel == '#ccc-ffm-intern':
-            self.internaction(msg, nick, channel, self)
-
-        elif channel == '#ccc-ffm':
-            self.publicaction(msg, nick, channel, self)
-
-        elif channel == '#ccc-ffm-infra':
-            self.infraaction(msg, nick, channel,self)
-
-        elif channel == '#ccc-ffm-vorstand':
-            self.vorstandaction(msg, nick, channel, self)
+        self.do_action(msg, nick, channel, self)

@@ -4,13 +4,13 @@ from ConfigParser import SafeConfigParser
 
 class Postbox(object):
 
-    parser = SafeConfigParser()
-    parser.read('./config/postbox.cfg')
-    quotasize=parser.get('quota', 'size')
-    postboxdir=parser.get('postboxpath','path')
+    def __init__(self, postboxdir, quotasize, accessfile):
+        self.postboxdir = postboxdir
+        self.quotasize = quotasize
+        self.accessfile = accessfile
 
     def savemessage(self,sender,receipient,msg):
-        """Delete too big postboxes"""
+        """Delete too big postboxes""" #Is this really the best way? shouldn't we just ignore new messages until the pox has been cleared?
         if os.path.isfile(self.postboxdir + receipient):
             if os.path.getsize(self.postboxdir + receipient) > self.quotasize:
                 os.remove(self.postboxdir + receipient)

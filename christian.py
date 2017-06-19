@@ -4,6 +4,7 @@
 
 #USAGE: ./christian.py Channel
 
+from time import sleep
 
 #twisted imports
 from twisted.internet import reactor, protocol, ssl, endpoints, task
@@ -11,13 +12,14 @@ from twisted.application.internet import ClientService
 from twisted.names import client, dns
 
 #system imports
-import sys
+import sys, os
 from ConfigParser import SafeConfigParser
 
 #Import the bots we want to create
 from bots import Bot
 from utils import BotLog, Signalhandler, Filehandler
-from time import sleep
+
+from modules import Keys, HQ, Postbox
 
 import socket
 
@@ -136,7 +138,7 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, channel, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
-            MQTT_power):
+            MQTT_power, keys, hq, postbox):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
@@ -154,6 +156,9 @@ class BotFactory(protocol.ClientFactory):
         self.MQTT_switch = MQTT_switch
         self.MQTT_ambientlight = MQTT_ambientlight
         self.MQTT_power = MQTT_power
+        self.keys = keys
+        self.hq = hq
+        self.postbox = postbox
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -172,7 +177,17 @@ if __name__ == '__main__':
     #read Serversettings from config file
     parser = SafeConfigParser()
 
-    parser.read('./config/network.cfg')
+    if "--config" in sys.argv:
+        config = sys.argv[sys.argv.index("--config") + 1]
+    else:
+        config = "./config/config.cfg"
+    if os.path.isfile(config):
+        parser.read(config)
+    else:
+        LOG.log("error", "Configuration file not found")
+        exit(1)
+
+    #parser.read('./config/network.cfg')
     host=parser.get('network', 'hostname')
 
     address_lookup()
@@ -187,15 +202,24 @@ if __name__ == '__main__':
         cafile = None
 
     #Read channels from config file
-    parser.read('./config/channels.cfg')
+    #parser.read('./config/channels.cfg')
     channels = parser.items( 'channels' )
-    chan_list=[]
+    chan_list = {channel: channel_functions.split(",") for channel, channel_functions in channels}
 
-    for key, channel in channels:
-            chan_list.append(channel)
+    chan_list_stripped = {}
+    for chan, actions in chan_list.iteritems():
+        chan_list_stripped[chan] = [x.strip() for x in actions]
+
+    chan_list = chan_list_stripped
+
+    keypath = parser.get('keys', 'path')
+    userpath = parser.get('users', 'path')
+    quotasize=parser.get('quota', 'size')
+    postboxdir=parser.get('postboxpath','path')
+    accessfile=parser.get('postboxaccess', 'path')
 
     #Read mqtt-status settings from config
-    parser.read('./config/status.cfg')
+    #parser.read('./config/status.cfg')
     MQTT_host=parser.get('status', 'hostname')
     MQTT_port=parser.getint('status', 'port')
     MQTT_ssl=parser.getboolean('status', 'ssl')
@@ -232,7 +256,8 @@ if __name__ == '__main__':
     factory = BotFactory(chan_list, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
-            MQTT_power)
+            MQTT_power, Keys(keypath), HQ(userpath, keypath),
+            Postbox(postboxdir, quotasize, accessfile))
 
 
     sig = Signalhandler(factory)

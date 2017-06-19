@@ -7,6 +7,18 @@ from modules import InternTopic
 class HQFunctions(object):
 
 
+    def help(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
+        helpmsg = "!join [<user> ...  <user>] - Join users to HQ. Joins yourself if no argument is given.\n"
+        helpmsg += "!leave [<user> ... <user>] - Leave users. Leaves yourself if no argument is given.\n"
+        helpmsg += "!whois - List people in HQ.\n"
+        helpmsg += "!open - Set HQ status to open.\n"
+        helpmsg += "!private - Set HQ status to private.\n"
+        helpmsg += "!close - Set HQ status to closed.\n"
+        helpmsg += "!dirty - Set HQ to dirty.\n"
+        helpmsg += "!clean - Set HQ to clean.\n"
+        helpmsg += "!status - Display status of HQ.\n"
+        callback.msg(nck, helpmsg)
+
     def join(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
         """
         Join users to HQ, update the status
