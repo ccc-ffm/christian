@@ -52,12 +52,15 @@ class Bot(irc.IRCClient):
         irc.IRCClient.connectionMade(self)
         self.current_wait_sec = 1
         LOG.log("notice", "connection established")
-        LOG.log("info", "Connecting to mqtt broker...")
+        LOG.log("info", "Connecting to MQTT broker...")
         f = self.factory
-        self.status.connect(f.MQTT_host, f.MQTT_port, f.MQTT_ssl, f.MQTT_ca,
-                f.MQTT_topic, f.MQTT_user, f.MQTT_pass, f.MQTT_id,
-                f.MQTT_bunteslicht, f.MQTT_sound, f.MQTT_switch,
-                f.MQTT_ambientlight, f.MQTT_power)
+        try:
+            self.status.connect(f.MQTT_host, f.MQTT_port, f.MQTT_ssl, f.MQTT_ca,
+                    f.MQTT_topic, f.MQTT_user, f.MQTT_pass, f.MQTT_id,
+                    f.MQTT_bunteslicht, f.MQTT_sound, f.MQTT_switch,
+                    f.MQTT_ambientlight, f.MQTT_power)
+        except:
+            LOG.log("warning", "failed connecting to MQTT broker.")
 
     def connectionLost(self, reason):
         LOG.log("crit", "connection lost: "+str(reason))
