@@ -21,10 +21,10 @@ class Bot(irc.IRCClient):
     """The Bot"""
 
     status = Status()
-    hq = HQ(status)
-    keys = Keys()
+    hq = None
+    keys = None
+    postbox = None
     internTopic = InternTopic()
-    postbox = Postbox()
     versionName = "christian"
     versionNum = "git-" + get_git_revision_short_hash()
     sourceURL = ""
@@ -43,6 +43,10 @@ class Bot(irc.IRCClient):
         self.topicUpdated("mqtt", "#ccc-ffm-intern", status)
 
     def connectionMade(self):
+        self.keys = self.factory.keys
+        self.hq = self.factory.hq
+        self.hq.status = self.status
+        self.postbox = self.factory.postbox
         self.nickname = self.factory.nickname
         self.password = self.factory.password
         irc.IRCClient.connectionMade(self)
@@ -176,13 +180,13 @@ class Bot(irc.IRCClient):
                     LOG.log("info", "Found command `" + command + "` in `" + actions + "`")
                     kwargs = {'msg': message[1:],
                               'nck': nick,
-                              'hq': self.hq,
-                              'keys': self.keys,
-                              'pb': self.postbox
+                              'hq': instance.hq,
+                              'keys': instance.keys,
+                              'pb': instance.postbox
                              }
 
-                    action(channel, instance, **kwargs)
                     found = True
+                    action(channel, instance, **kwargs)
             except:
                 pass
         if not found:

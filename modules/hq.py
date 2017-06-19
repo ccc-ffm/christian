@@ -3,7 +3,7 @@ from datetime import datetime
 
 class HQ(object):
 
-    def __init__(self, status):
+    def __init__(self, fpath, kpath):
         self.people_in_hq = 0
         self.keys_in_hq = 0
         self.joined_users = []
@@ -11,18 +11,17 @@ class HQ(object):
         self.status_since = datetime.now().strftime('%Y-%m-%d %H:%M')
         self.is_clean = True
         self.joined_keys = []
-        self.status = status
+        self.status = None
+        self.fpath = fpath
 
-        fpath = './storage/users.txt'
         if os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
-            with open('./storage/users.txt','r') as userfile:
+            with open(fpath, 'r') as userfile:
                 self.joined_users = [line.strip() for line in userfile]
         self.joined_users = list(set(self.joined_users))
         self.people_in_hq = len(self.joined_users)
 
-        fpath = './storage/keys.txt'
-        if os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
-            with open('./storage/keys.txt','r') as statefile:
+        if os.path.isfile(kpath) and os.path.getsize(kpath) > 0:
+            with open(kpath, 'r') as statefile:
                 keys = [line.strip() for line in statefile]
         keys = list(set(self.joined_users))
         for user in self.joined_users:

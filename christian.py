@@ -4,6 +4,7 @@
 
 #USAGE: ./christian.py Channel
 
+from time import sleep
 
 #twisted imports
 from twisted.internet import reactor, protocol, ssl, endpoints, task
@@ -17,7 +18,8 @@ from ConfigParser import SafeConfigParser
 #Import the bots we want to create
 from bots import Bot
 from utils import BotLog, Signalhandler, Filehandler
-from time import sleep
+
+from modules import Keys, HQ, Postbox
 
 import socket
 
@@ -136,7 +138,7 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, channel, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
-            MQTT_power):
+            MQTT_power, keys, hq, postbox):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
@@ -154,6 +156,9 @@ class BotFactory(protocol.ClientFactory):
         self.MQTT_switch = MQTT_switch
         self.MQTT_ambientlight = MQTT_ambientlight
         self.MQTT_power = MQTT_power
+        self.keys = keys
+        self.hq = hq
+        self.postbox = postbox
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -202,6 +207,12 @@ if __name__ == '__main__':
 
     chan_list = chan_list_stripped
 
+    keypath = parser.get('keys', 'path')
+    userpath = parser.get('users', 'path')
+    quotasize=parser.get('quota', 'size')
+    postboxdir=parser.get('postboxpath','path')
+    accessfile=parser.get('postboxaccess', 'path')
+
     #Read mqtt-status settings from config
     #parser.read('./config/status.cfg')
     MQTT_host=parser.get('status', 'hostname')
@@ -240,7 +251,8 @@ if __name__ == '__main__':
     factory = BotFactory(chan_list, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
-            MQTT_power)
+            MQTT_power, Keys(keypath), HQ(userpath, keypath),
+            Postbox(postboxdir, quotasize, accessfile))
 
 
     sig = Signalhandler(factory)

@@ -2,11 +2,11 @@ import os
 
 class Keys(object):
 
-    def __init__(self):
+    def __init__(self, fpath):
         self.keyholders = []
-        fpath = './storage/keys.txt'
+        self.fpath = fpath
         if os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
-            with open('./storage/keys.txt','r') as statefile:
+            with open(fpath, 'r') as statefile:
                 self.keyholders = [line.strip() for line in statefile]
 
     def iskeyholder(self, nickname):

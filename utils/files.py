@@ -56,6 +56,9 @@ class Filehandler(object):
             return line
 
     def onaccesslist(self, user, accessfile):
+        if not os.path.isfile(accessfile):
+            with open(accessfile, 'w') as accfile:
+                close(accfile)
         try:
             with open(accessfile, 'r') as accfile:
                 for line in accfile:
