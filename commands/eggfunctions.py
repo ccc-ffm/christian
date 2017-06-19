@@ -50,7 +50,7 @@ class EasterEggFunctions(object):
         self.gude(channel, callback, **kwargs)
 
     def gude(self, channel, callback, **kwargs):
-        seconds = time() - self.timestamp
+        seconds = int(time() - self.timestamp)
         if not self.timestamp or seconds > 120:
             self.timestamp = time()
             """Post ascii-art logo"""

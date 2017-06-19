@@ -189,10 +189,7 @@ if __name__ == '__main__':
     #Read channels from config file
     parser.read('./config/channels.cfg')
     channels = parser.items( 'channels' )
-    chan_list=[]
-
-    for key, channel in channels:
-            chan_list.append(channel)
+    chan_list = {channel: channel_functions.split(",") for channel, channel_functions in channels}
 
     #Read mqtt-status settings from config
     parser.read('./config/status.cfg')

@@ -6,11 +6,14 @@ from twisted.words.protocols import irc
 import re, subprocess
 from time import sleep, time
 
-#Bot modules
-from bots.internbot import Intern
-from bots.publicbot import Public
-from bots.infrabot import Infra
-from bots.vorstandbot import Vorstand
+#import commands
+from commands import EasterEggFunctions
+from commands import HQFunctions
+from commands import KeyFunctions
+from commands import ServiceFunctions
+from commands import HelpFunctions
+from commands import PostboxFunctions
+from commands import PostboxMgmtFunctions
 
 from modules import HQ, Keys, Postbox, InternTopic, Status
 from utils import BotLog
@@ -33,10 +36,6 @@ class Bot(irc.IRCClient):
     sourceURL = ""
     lineRate = .2
     timestamp = 0
-    internactions = Intern()
-    publicactions = Public()
-    infraactions = Infra()
-    vorstandactions = Vorstand()
 
     def __init__(self):
         self.wait_max_sec = 6000
@@ -164,6 +163,40 @@ class Bot(irc.IRCClient):
         LOG.log("info", "joined channel: "+channel)
 
     @classmethod
+    def do_action(self, message, nick, channel, instance):
+
+        command = message[0].translate(None, '!')
+        action = None
+        channel_actions = {}
+
+        chan = channel.lstrip('#')
+        if chan in instance.factory.channel:
+            channel_actions = instance.factory.channel[chan]
+            LOG.log("notice", "actions associated with channel `" + channel + "`: " + str(channel_actions))
+        found = False
+        for actions in channel_actions:
+            actions = actions.strip()
+            try:
+                action = getattr(globals()[actions](),command) if globals().has_key(actions) else None
+                if action:
+                    LOG.log("info", "Found command `" + command + "` in `" + actions + "`")
+                    kwargs = {'msg': message[1:],
+                              'nck': nick,
+                              'hq': self.hq,
+                              'keys': self.keys,
+                              'pb': self.postbox
+                             }
+
+                    action(channel, instance, **kwargs)
+                    found = True
+            except:
+                pass
+        if not found:
+            LOG.log("info", "Command `" + command + "` not implemented in actions associated with channel `" + channel + "`")
+            return
+
+
+    @classmethod
     def publicaction(self, message, nick, channel, instance):
 
         command = message[0].translate(None, '!')
@@ -260,15 +293,16 @@ class Bot(irc.IRCClient):
             message = re.sub(alias, nickname, message)
         msg = message.split(" ")
 
-        #Pass the message to its method based on the channel
-        if channel == '#ccc-ffm-intern':
-            self.internaction(msg, nick, channel, self)
-
-        elif channel == '#ccc-ffm':
-            self.publicaction(msg, nick, channel, self)
-
-        elif channel == '#ccc-ffm-infra':
-            self.infraaction(msg, nick, channel,self)
-
-        elif channel == '#ccc-ffm-vorstand':
-            self.vorstandaction(msg, nick, channel, self)
+        self.do_action(msg, nick, channel, self)
+#        #Pass the message to its method based on the channel
+#        if channel == '#ccc-ffm-intern':
+#            self.do_action(msg, nick, channel, self)
+#
+#        elif channel == '#ccc-ffm':
+#            self.publicaction(msg, nick, channel, self)
+#
+#        elif channel == '#ccc-ffm-infra':
+#            self.infraaction(msg, nick, channel,self)
+#
+#        elif channel == '#ccc-ffm-vorstand':
+#            self.vorstandaction(msg, nick, channel, self)
