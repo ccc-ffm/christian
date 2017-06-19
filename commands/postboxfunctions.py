@@ -7,6 +7,10 @@ class PostboxFunctions(object):
     def __init__(self):
         self.fhandler = Filehandler()
 
+    def help(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
+        helpmsg = "!tell <user> - Store message in <user>s postbox.\n"
+        callback.msg(nck, helpmsg)
+
     def tell(self, channel, callback, msg=None, nck=None, pb=None, **kwargs):
         try:
             parser = SafeConfigParser()

@@ -5,6 +5,11 @@ class ServiceFunctions(object):
     def __init__(self):
         self.fhandler = Filehandler()
 
+    def help(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
+        helpmsg = "!donnerstag - Tell something about our public meeting.\n"
+        helpmsg += "!status - Get current status of HQ.\n"
+        callback.msg(nck, helpmsg)
+
     def donnerstag(self, channel, callback, hq=None, **kwargs):
         """Tell about public meeting"""
         callback.say(channel,

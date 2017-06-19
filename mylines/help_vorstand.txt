@@ -1,3 +1,0 @@
-usage: [command] [arg]
-
-See https://wiki.ccc-ffm.de/irc:help for details.

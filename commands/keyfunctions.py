@@ -2,6 +2,11 @@ from modules import InternTopic
 
 class KeyFunctions(object):
 
+    def help(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
+        helpmsg = "!key <user1> <user2> - Hand key from <user1> to <user2>.\n"
+        helpmsg += "!keys - List people in posession of keys.\n"
+        callback.msg(nck, helpmsg)
+
     def key(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
 
         if len(msg) != 2 or ' ' in msg:
