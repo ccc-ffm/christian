@@ -14,7 +14,7 @@ class PostboxFunctions(object):
     def tell(self, channel, callback, msg=None, nck=None, pb=None, **kwargs):
         try:
             parser = SafeConfigParser()
-            parser.read('./config/postbox.cfg')
+            parser.read('./config/config.cfg')
             accessfile=parser.get('postboxaccess', 'path')
         except:
             raise Exception('Failed to read the config')

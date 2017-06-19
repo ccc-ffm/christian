@@ -17,7 +17,7 @@ class PostboxMgmtFunctions(object):
 
     def postbox(self, channel, callback, msg=None, **kwargs):
         parser = SafeConfigParser()
-        parser.read('./config/postbox.cfg')
+        parser.read('./config/config.cfg')
         accessfile=parser.get('postboxaccess', 'path')
 
         #Sanitize msg[1]

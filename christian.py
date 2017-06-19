@@ -11,7 +11,7 @@ from twisted.application.internet import ClientService
 from twisted.names import client, dns
 
 #system imports
-import sys
+import sys, os
 from ConfigParser import SafeConfigParser
 
 #Import the bots we want to create
@@ -172,7 +172,12 @@ if __name__ == '__main__':
     #read Serversettings from config file
     parser = SafeConfigParser()
 
-    parser.read('./config/network.cfg')
+    if os.path.isfile('./config/config.cfg'):
+        parser.read('./config/config.cfg')
+    else:
+        LOG.log("error", "Configuration not found")
+
+    #parser.read('./config/network.cfg')
     host=parser.get('network', 'hostname')
 
     address_lookup()
@@ -187,7 +192,7 @@ if __name__ == '__main__':
         cafile = None
 
     #Read channels from config file
-    parser.read('./config/channels.cfg')
+    #parser.read('./config/channels.cfg')
     channels = parser.items( 'channels' )
     chan_list = {channel: channel_functions.split(",") for channel, channel_functions in channels}
 
@@ -198,7 +203,7 @@ if __name__ == '__main__':
     chan_list = chan_list_stripped
 
     #Read mqtt-status settings from config
-    parser.read('./config/status.cfg')
+    #parser.read('./config/status.cfg')
     MQTT_host=parser.get('status', 'hostname')
     MQTT_port=parser.getint('status', 'port')
     MQTT_ssl=parser.getboolean('status', 'ssl')

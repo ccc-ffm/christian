@@ -5,7 +5,7 @@ from ConfigParser import SafeConfigParser
 class Postbox(object):
 
     parser = SafeConfigParser()
-    parser.read('./config/postbox.cfg')
+    parser.read('./config/config.cfg')
     quotasize=parser.get('quota', 'size')
     postboxdir=parser.get('postboxpath','path')
 
