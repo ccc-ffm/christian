@@ -31,6 +31,15 @@ class Bot(irc.IRCClient):
     lineRate = .2
     timestamp = 0
 
+
+    EasterEggFunctions = EasterEggFunctions()
+    HQFunctions = HQFunctions()
+    KeyFunctions = KeyFunctions()
+    ServiceFunctions = ServiceFunctions()
+    HelpFunctions = HelpFunctions()
+    PostboxFunctions = PostboxFunctions()
+    PostboxMgmtFunctions = PostboxMgmtFunctions()
+
     def __init__(self):
         self.wait_max_sec = 6000
         self.current_wait_sec = 1
@@ -178,7 +187,11 @@ class Bot(irc.IRCClient):
         for actions in channel_actions:
             actions = actions.strip()
             try:
-                action = getattr(globals()[actions](),command) if globals().has_key(actions) else None
+                """Don't create new instances for each command"""
+                #action = getattr(globals()[actions](),command) if globals().has_key(actions) else None
+                action = getattr(getattr(instance, actions),command) if hasattr(instance, actions) and hasattr(getattr(instance, actions), command) else None
+                print hasattr(instance, actions)
+                print getattr(instance, actions)
                 if action:
                     LOG.log("info", "Found command `" + command + "` in `" + actions + "`")
                     kwargs = {'msg': message[1:],
