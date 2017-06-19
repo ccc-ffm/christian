@@ -12,12 +12,7 @@ class PostboxFunctions(object):
         callback.msg(nck, helpmsg)
 
     def tell(self, channel, callback, msg=None, nck=None, pb=None, **kwargs):
-        try:
-            parser = SafeConfigParser()
-            parser.read('./config/config.cfg')
-            accessfile=parser.get('postboxaccess', 'path')
-        except:
-            raise Exception('Failed to read the config')
+        accessfile = pb.accessfile
 
         if len(msg) < 2:
             callback.say(channel,'Syntax: !tell [receipient] [message]')
