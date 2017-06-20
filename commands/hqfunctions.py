@@ -33,7 +33,7 @@ class HQFunctions(object):
         for user in msg:
             user = user.strip()
             if user in hq.joined_users:
-                callback.say(channel,'{0} is already here'.format(nck))
+                callback.say(channel,'{0} is already here'.format(user))
             elif user.isspace() is False and len(user) != 0:
                 if keys.iskeyholder(user) is False:
                     hq.hq_join(user)

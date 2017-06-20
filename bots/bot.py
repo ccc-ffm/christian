@@ -190,8 +190,6 @@ class Bot(irc.IRCClient):
                 """Don't create new instances for each command"""
                 #action = getattr(globals()[actions](),command) if globals().has_key(actions) else None
                 action = getattr(getattr(instance, actions),command) if hasattr(instance, actions) and hasattr(getattr(instance, actions), command) else None
-                print hasattr(instance, actions)
-                print getattr(instance, actions)
                 if action:
                     LOG.log("info", "Found command `" + command + "` in `" + actions + "`")
                     kwargs = {'msg': message[1:],
