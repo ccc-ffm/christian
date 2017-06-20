@@ -138,7 +138,7 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, channel, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
-            MQTT_power, keys, hq, postbox):
+            MQTT_power, keys, hq, postbox, useraliases):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
@@ -159,6 +159,7 @@ class BotFactory(protocol.ClientFactory):
         self.keys = keys
         self.hq = hq
         self.postbox = postbox
+        self.useraliases = useraliases
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -218,6 +219,8 @@ if __name__ == '__main__':
     postboxdir=parser.get('postboxpath','path')
     accessfile=parser.get('postboxaccess', 'path')
 
+    useraliases = parser.get('aliases', 'users')
+
     #Read mqtt-status settings from config
     #parser.read('./config/status.cfg')
     MQTT_host=parser.get('status', 'hostname')
@@ -257,7 +260,7 @@ if __name__ == '__main__':
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
             MQTT_power, Keys(keypath), HQ(userpath, keypath),
-            Postbox(postboxdir, quotasize, accessfile))
+            Postbox(postboxdir, quotasize, accessfile), useraliases)
 
 
     sig = Signalhandler(factory)

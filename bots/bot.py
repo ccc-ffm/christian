@@ -222,7 +222,7 @@ class Bot(irc.IRCClient):
 
         #replace nick aliases by the actual nickname
         aliases = {}
-        with open("./config/aliases", "r") as filea:
+        with open(self.factory.useraliases, "r") as filea:
             for line in filea:
                 alias = line.split(":")
                 aliases[alias[0]] = alias[1].strip().encode()
