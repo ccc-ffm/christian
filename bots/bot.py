@@ -49,7 +49,10 @@ class Bot(irc.IRCClient):
     def updateStatus(self, status):
         LOG.debug("update status: " + status)
         self.hq.hq_set(status)
-        self.topicUpdated("mqtt", "#ccc-ffm-intern", status)
+        for channel in self.factory.channel:
+            if 'HQFunctions' in self.factory.channel[channel]:
+                LOG.debug("set topic on channel " + channel)
+                self.topicUpdated("mqtt", "#" + channel, status)
 
     def connectionMade(self):
         self.keys = self.factory.keys
