@@ -30,6 +30,7 @@ class Bot(irc.IRCClient):
     sourceURL = ""
     lineRate = .2
     timestamp = 0
+    hostname = None
 
 
     EasterEggFunctions = EasterEggFunctions()
@@ -91,9 +92,17 @@ class Bot(irc.IRCClient):
         self.setNick(self.nickname)
 
     def signedOn(self):
+        self.identify()
+        self.whois(self.nickname)
+
+    def identify(self):
         LOG.log("notice", "Authenticating against NickServ...")
         self.msg('NickServ', 'identify {0} {1}'.format(self.nickname, self.password))
         LOG.log("notice", "Awaiting verification...")
+
+    def irc_RPL_WHOISUSER(self, prefix, params):
+        if params[-5] == self.nickname:
+            self.hostname = params[-3]
 
     def noticed(self, user, channel, message):
         if "NickServ" in user and "identified" in message:
@@ -102,7 +111,7 @@ class Bot(irc.IRCClient):
                 self.join(channel)
         if "NickServ" in user and "is registered" in message:
             LOG.log("notice", "Received notice that nick is registered, reauthenticate...")
-            self.signedOn()
+            self.identify()
         if "ChanServ" in user and "Unbanned" in message:
             LOG.log("notice", "Unbanned successfully, rejoining...")
             for channel in self.factory.channel:
@@ -132,14 +141,13 @@ class Bot(irc.IRCClient):
 
     def unban(self, channel, arg):
         LOG.log("info", "Trying to unban...")
-        user, mask = arg.split('!')
-        self.mode(channel, False, "b", None, user, mask) 
+        self.mode(channel, False, "b", None, arg) 
         self.msg('ChanServ', 'unban {0} {1}'.format(channel, self.nickname))
 
     def modeChanged(self, user, channel, set, modes, args):
         if "b" in modes:
             for arg in args:
-                if self.nickname in arg:
+                if self.nickname in arg or (self.hostname and self.hostname in arg):
                     if(set):
                         LOG.log("notice", "We have been banned from channel " + channel + " by " + user)
                         self.unban(channel, arg)
