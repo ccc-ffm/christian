@@ -139,7 +139,6 @@ class BotFactory(protocol.ClientFactory):
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
             MQTT_power, keys, hq, postbox, pad, useraliases):
-            MQTT_power, keys, hq, postbox, pad):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
