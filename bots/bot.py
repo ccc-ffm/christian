@@ -7,9 +7,12 @@ import re, subprocess
 from time import sleep, time
 
 #import commands
-from commands import EasterEggFunctions, HQFunctions, KeyFunctions, ServiceFunctions, HelpFunctions, PostboxFunctions, PostboxMgmtFunctions
+from commands import EasterEggFunctions, HQFunctions,\
+                     KeyFunctions, ServiceFunctions,\
+                     HelpFunctions, PostboxFunctions,\
+                     PostboxMgmtFunctions, AssistanceFunctions
 
-from modules import HQ, Keys, Postbox, InternTopic, Status
+from modules import HQ, Keys, Postbox, InternTopic, Status, Pad
 from utils import BotLog
 
 LOG = BotLog()
@@ -24,6 +27,7 @@ class Bot(irc.IRCClient):
     hq = None
     keys = None
     postbox = None
+    pad = None
     internTopic = InternTopic()
     versionName = "christian"
     versionNum = "git-" + get_git_revision_short_hash()
@@ -60,6 +64,7 @@ class Bot(irc.IRCClient):
         self.hq = self.factory.hq
         self.hq.status = self.status
         self.postbox = self.factory.postbox
+        self.pad = self.factory.pad
         self.nickname = self.factory.nickname
         self.password = self.factory.password
         irc.IRCClient.connectionMade(self)
@@ -126,7 +131,7 @@ class Bot(irc.IRCClient):
         irc.IRCClient._sendHeartbeat(self)
         seconds = int(time() - self.timestamp)
         if self.timestamp and seconds > self.heartbeatInterval:
-            LOG.log("info", "No data received for " + str(seconds) + " seconds, aborting connection...") 
+            LOG.log("info", "No data received for " + str(seconds) + " seconds, aborting connection...")
             self.transport.abortConnection()
 
     def irc_ERR_BANNEDFROMCHAN(self, prefix, params):
@@ -141,7 +146,7 @@ class Bot(irc.IRCClient):
 
     def unban(self, channel, arg):
         LOG.log("info", "Trying to unban...")
-        self.mode(channel, False, "b", None, arg) 
+        self.mode(channel, False, "b", None, arg)
         self.msg('ChanServ', 'unban {0} {1}'.format(channel, self.nickname))
 
     def modeChanged(self, user, channel, set, modes, args):
