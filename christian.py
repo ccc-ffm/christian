@@ -19,7 +19,7 @@ from ConfigParser import SafeConfigParser
 from bots import Bot
 from utils import BotLog, Signalhandler, Filehandler
 
-from modules import Keys, HQ, Postbox
+from modules import Keys, HQ, Postbox, Pad
 
 import socket
 
@@ -114,7 +114,7 @@ def connect_next():
         else:
             endpoint = endpoints.TCP4ClientEndpoint(reactor, addr, port)
             #reactor.connectTCP(addr, port, factory)
-        
+
         reconnector = ClientService(endpoint, factory)
         #Workaround for twisted < 17.5.0
         checkFailedLoop = task.LoopingCall(checkFailure, reconnector)
@@ -138,7 +138,8 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, channel, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
-            MQTT_power, keys, hq, postbox, useraliases):
+            MQTT_power, keys, hq, postbox, pad, useraliases):
+            MQTT_power, keys, hq, postbox, pad):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
@@ -160,6 +161,7 @@ class BotFactory(protocol.ClientFactory):
         self.hq = hq
         self.postbox = postbox
         self.useraliases = useraliases
+        self.pad = pad
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -255,13 +257,18 @@ if __name__ == '__main__':
     except:
         MQTT_power = None
 
+    #Read pad settings from file
+    pad_url=parser.get('pad', 'url')
+    pad_user=parser.get('pad', 'user')
+    pad_password=parser.get('pad','password')
+
     #Factory
     factory = BotFactory(chan_list, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
             MQTT_power, Keys(keypath), HQ(userpath, keypath),
-            Postbox(postboxdir, quotasize, accessfile), useraliases)
-
+            Postbox(postboxdir, quotasize, accessfile), useraliases,
+            Pad(pad_url,pad_user,pad_password))
 
     sig = Signalhandler(factory)
     reactor.addSystemEventTrigger('before', 'shutdown', sig.savestates)
