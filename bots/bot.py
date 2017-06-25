@@ -44,6 +44,7 @@ class Bot(irc.IRCClient):
     HelpFunctions = HelpFunctions()
     PostboxFunctions = PostboxFunctions()
     PostboxMgmtFunctions = PostboxMgmtFunctions()
+    AssistanceFunctions = AssistanceFunctions()
 
     def __init__(self):
         self.wait_max_sec = 6000
@@ -212,7 +213,8 @@ class Bot(irc.IRCClient):
                               'nck': nick,
                               'hq': instance.hq,
                               'keys': instance.keys,
-                              'pb': instance.postbox
+                              'pb': instance.postbox,
+                              'pad': instance.pad
                              }
 
                     found = True
