@@ -258,8 +258,8 @@ if __name__ == '__main__':
 
     #Read pad settings from file
     pad_url=parser.get('pad', 'url')
-    pad_user=parser.get('credentials', 'user')
-    pad_password=parser.get('credentials','password')
+    pad_user=parser.get('chaos-credentials', 'user')
+    pad_password=parser.get('chaos-credentials','password')
 
     #Factory
     factory = BotFactory(chan_list, nickname, password, MQTT_host, MQTT_port,
