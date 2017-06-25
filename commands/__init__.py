@@ -5,3 +5,4 @@ from commands.servicefunctions import ServiceFunctions
 from commands.helpfunctions import HelpFunctions
 from commands.postboxfunctions import PostboxFunctions
 from commands.postboxmanagementfunctions import PostboxMgmtFunctions
+from commands.assistancefunctions import AssistanceFunctions
