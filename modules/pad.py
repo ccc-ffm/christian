@@ -7,7 +7,8 @@ class Pad(object):
         self.public = public
 
     def getPrivateUrl(self):
-        return ("https://{0}:{1}@chaospad.de/p/".format(self.user,self.password))
+        proto, address = self.url.split("//")
+        return ((proto + "//{0}:{1}@" + address).format(self.user,self.password))
 
     def getPublicUrl(self):
-        return ("https://chaospad.de/p/")
+        return (self.url)
