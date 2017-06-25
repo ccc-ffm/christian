@@ -138,7 +138,7 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, channel, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
-            MQTT_power, keys, hq, postbox, pad, useraliases):
+            MQTT_power, keys, hq, postbox, useraliases, pad):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
