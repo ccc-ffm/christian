@@ -19,7 +19,7 @@ from ConfigParser import SafeConfigParser
 from bots import Bot
 from utils import BotLog, Signalhandler, Filehandler
 
-from modules import Keys, HQ, Postbox, Pad
+from modules import Keys, HQ, Postbox, Friendship
 
 import socket
 
@@ -138,7 +138,7 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, channel, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
-            MQTT_power, keys, hq, postbox, useraliases, pad, url_list):
+            MQTT_power, keys, hq, postbox, useraliases, friendship, url_list):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
@@ -160,7 +160,7 @@ class BotFactory(protocol.ClientFactory):
         self.hq = hq
         self.postbox = postbox
         self.useraliases = useraliases
-        self.pad = pad
+        self.friendship = friendship
         self.url_list = url_list
 
     def clientConnectionLost(self, connector, reason):
@@ -274,7 +274,7 @@ if __name__ == '__main__':
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
             MQTT_power, Keys(keypath), HQ(userpath, keypath),
             Postbox(postboxdir, quotasize, accessfile), useraliases,
-            Pad(pad_url,pad_user,pad_password), url_list)
+            Friendship(pad_url,pad_user,pad_password), url_list)
 
     sig = Signalhandler(factory)
     reactor.addSystemEventTrigger('before', 'shutdown', sig.savestates)
