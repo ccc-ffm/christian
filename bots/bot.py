@@ -12,7 +12,7 @@ from commands import EasterEggFunctions, HQFunctions,\
                      HelpFunctions, PostboxFunctions,\
                      PostboxMgmtFunctions, AssistanceFunctions
 
-from modules import HQ, Keys, Postbox, InternTopic, Status, Pad
+from modules import HQ, Keys, Postbox, InternTopic, Status, Friendship
 from utils import BotLog
 
 LOG = BotLog()
@@ -27,7 +27,7 @@ class Bot(irc.IRCClient):
     hq = None
     keys = None
     postbox = None
-    pad = None
+    friendship = None
     internTopic = InternTopic()
     versionName = "christian"
     versionNum = "git-" + get_git_revision_short_hash()
@@ -65,7 +65,7 @@ class Bot(irc.IRCClient):
         self.hq = self.factory.hq
         self.hq.status = self.status
         self.postbox = self.factory.postbox
-        self.pad = self.factory.pad
+        self.friendship = self.factory.friendship
         self.nickname = self.factory.nickname
         self.password = self.factory.password
         irc.IRCClient.connectionMade(self)
@@ -214,7 +214,7 @@ class Bot(irc.IRCClient):
                               'hq': instance.hq,
                               'keys': instance.keys,
                               'pb': instance.postbox,
-                              'pad': instance.pad
+                              'friendship': instance.friendship
                              }
 
                     found = True
@@ -224,6 +224,18 @@ class Bot(irc.IRCClient):
         if not found:
             LOG.log("info", "Command `" + command + "` not implemented in actions associated with channel `" + channel + "`")
             return
+
+    @classmethod
+    def do_special_action(self, message, nick, channel, instance):
+        pattern = re.compile('(' + '|'.join(instance.factory.url_list) + ')(\S*)')
+        matches = re.findall(pattern, message)
+        if matches:
+            for match in matches:
+                url = instance.friendship.getPrivateUrl('https://' + match[0] + match[1])
+                instance.say(channel, url)
+            return True
+        else:
+            return False
 
     def topicUpdated(self, user, channel, newTopic):
         nick, _, host = user.partition('!')
@@ -236,7 +248,7 @@ class Bot(irc.IRCClient):
 
         #do nothing if first sign is something else than a !
         if message[0] != "!":
-            return False
+            return self.do_special_action(message, nick, channel, self)
 
         #replace nick aliases by the actual nickname
         aliases = {}

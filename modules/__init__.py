@@ -3,5 +3,5 @@ from keys import Keys
 from postbox import Postbox
 from topic import InternTopic
 from status import Status
-from pad import Pad
+from friendship import Friendship
 from dudle import Dudle
