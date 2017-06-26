@@ -22,7 +22,6 @@ class AssistanceFunctions(object):
                 type = 'normal'
             if len(msg) > 2:
                 url = msg[2]
-            print "bar"
             callback.say(channel, Dudle().getDudle(msg[0], type, url))
 
     def help(self, channel, callback, msg=None, nck=None, pad=None, **kwargs):
