@@ -227,13 +227,16 @@ class Bot(irc.IRCClient):
 
     @classmethod
     def do_special_action(self, message, nick, channel, instance):
-        pattern = re.compile('(' + '|'.join(instance.factory.url_list) + ')(\S*)')
-        matches = re.findall(pattern, message)
-        if matches:
-            for match in matches:
-                url = instance.friendship.getPrivateUrl('https://' + match[0] + match[1])
-                instance.say(channel, url)
-            return True
+        if 'AssistanceFunctions' in instance.factory.channel[channel.lstrip('#')]:
+            pattern = re.compile('(' + '|'.join(instance.factory.url_list) + ')(\S*)')
+            matches = re.findall(pattern, message)
+            if matches:
+                for match in matches:
+                    url = instance.friendship.getPrivateUrl('https://' + match[0] + match[1])
+                    instance.say(channel, url)
+                return True
+            else:
+                return False
         else:
             return False
 
