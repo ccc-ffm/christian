@@ -10,7 +10,7 @@ class Friendship(object):
         if not url:
             url = self.url
         proto, address = url.split("//")
-        return (("https//{0}:{1}@" + address).format(self.user,self.password))
+        return (("https://{0}:{1}@" + address).format(self.user,self.password))
 
     def getPublicUrl(self):
         return (self.url)
