@@ -16,7 +16,7 @@ class KeyFunctions(object):
                 if keys.iskeyholder(msg[1]) is False:
                     keys.removekeyholder(msg[0])
                     keys.addkeyholder(msg[1])
-                    self.keys(channel, callback, keys)
+                    self.keys(channel, callback, keys=keys)
                     topic = InternTopic()
                     callback.topic(channel, topic.getTopic(hq, keys))
                 else:
