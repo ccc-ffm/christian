@@ -39,12 +39,12 @@ class EasterEggFunctions(object):
     def fg(self, channel, callback, msg=None, **kwargs):
         """Frag gnom"""
         if len(msg):
-            callback.say(channel, "telegnom: " + (" ".join(msg))[:128])
+            callback.say(channel, "telegnom: " + (" ".join(msg))[:120])
 
     def fs(self, channel, callback, msg=None, **kwargs):
         """Frag skorpy"""
         if len(msg):
-            callback.say(channel, "skorpy: " + (" ".join(msg))[:128])
+            callback.say(channel, "skorpy: " + (" ".join(msg))[:120])
 
     def gud3(self, channel, callback, **kwargs):
         self.gude(channel, callback, **kwargs)
