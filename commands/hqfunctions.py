@@ -71,6 +71,7 @@ class HQFunctions(object):
         message += "Switch is " + "\x02\x03" + ("03" if hq.status.switch_s == "on" else "04") + hq.status.switch_s + "\x03\x02\x0F" + "\n"
         message += "Ambient Light (Lab) is " + "\x02\x03" + ("03" if hq.status.ambientlight_s == "on" else "04") + hq.status.ambientlight_s + "\x03\x02\x0F" + "\n"
         message += "Current power consumption: " + "\x02" + hq.status.power_s + "\x02\x0F" + " Watts\n"
+        message += "The HQ is marked as " + "\x02\x03" + ("03clean" if hq.is_clean else "04dirty") + "\x03\x02\x0F" + "\n"
 
         callback.msg(channel, message)
 
