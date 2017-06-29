@@ -81,6 +81,12 @@ class Bot(irc.IRCClient):
         except:
             LOG.log("warning", "failed connecting to MQTT broker.")
 
+        self.aliases = {}
+        with open(self.factory.useraliases, "r") as filea:
+            for line in filea:
+                alias = line.split(":")
+                self.aliases[alias[0]] = alias[1].strip().encode()
+
     def connectionLost(self, reason):
         LOG.log("crit", "connection lost: "+str(reason))
         #Wait before we
@@ -254,12 +260,7 @@ class Bot(irc.IRCClient):
             return self.do_special_action(message, nick, channel, self)
 
         #replace nick aliases by the actual nickname
-        aliases = {}
-        with open(self.factory.useraliases, "r") as filea:
-            for line in filea:
-                alias = line.split(":")
-                aliases[alias[0]] = alias[1].strip().encode()
-        for alias, nickname in aliases.items():
+        for alias, nickname in self.aliases.items():
             message = re.sub(alias, nickname, message)
         msg = message.split(" ")
 
