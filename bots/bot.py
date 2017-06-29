@@ -5,6 +5,7 @@ from twisted.words.protocols import irc
 #System
 import re, subprocess
 from time import sleep, time
+import os.path
 
 #import commands
 from commands import EasterEggFunctions, HQFunctions,\
@@ -86,6 +87,13 @@ class Bot(irc.IRCClient):
             for line in filea:
                 alias = line.split(":")
                 self.aliases[alias[0]] = alias[1].strip().encode()
+
+        self.cmdaliases = {}
+        if os.path.isfile(self.factory.cmdaliases):
+            with open(self.factory.cmdaliases, "r") as fileb:
+                for line in fileb:
+                    alias = line.split(":")
+                    self.cmdaliases[alias[0]] = alias[1].strip().encode()
 
     def connectionLost(self, reason):
         LOG.log("crit", "connection lost: "+str(reason))
@@ -262,6 +270,12 @@ class Bot(irc.IRCClient):
         #replace nick aliases by the actual nickname
         for alias, nickname in self.aliases.items():
             message = re.sub(alias, nickname, message)
+
         msg = message.split(" ")
+
+        #replace cmd aliases with the actual command
+        for alias, command in self.cmdaliases.items():
+            msg[0] = re.sub(alias, command, msg[0])
+
 
         self.do_action(msg, nick, channel, self)

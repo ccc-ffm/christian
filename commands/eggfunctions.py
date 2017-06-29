@@ -46,9 +46,6 @@ class EasterEggFunctions(object):
         if len(msg):
             callback.say(channel, "skorpy: " + (" ".join(msg))[:120])
 
-    def gud3(self, channel, callback, **kwargs):
-        self.gude(channel, callback, **kwargs)
-
     def gude(self, channel, callback, **kwargs):
         seconds = int(time() - self.timestamp)
         if not self.timestamp or seconds > 120:

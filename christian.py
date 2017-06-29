@@ -138,7 +138,8 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, channel, nickname, password, MQTT_host, MQTT_port,
             MQTT_ssl, MQTT_ca, MQTT_topic, MQTT_user, MQTT_pass, MQTT_id,
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
-            MQTT_power, keys, hq, postbox, useraliases, friendship, url_list):
+            MQTT_power, keys, hq, postbox, useraliases, friendship, url_list,
+            cmdaliases):
         self.channel = channel
         self.protocol = Bot
         self.nickname = nickname
@@ -162,6 +163,7 @@ class BotFactory(protocol.ClientFactory):
         self.useraliases = useraliases
         self.friendship = friendship
         self.url_list = url_list
+        self.cmdaliases = cmdaliases
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -222,6 +224,10 @@ if __name__ == '__main__':
     accessfile=parser.get('postboxaccess', 'path')
 
     useraliases = parser.get('aliases', 'users')
+    try:
+        cmdaliases = parser.get('aliases', 'commands')
+    except:
+        cmdaliases = "./config/cmd_aliases"
 
     #Read mqtt-status settings from config
     #parser.read('./config/status.cfg')
@@ -274,7 +280,8 @@ if __name__ == '__main__':
             MQTT_bunteslicht, MQTT_sound, MQTT_switch, MQTT_ambientlight,
             MQTT_power, Keys(keypath), HQ(userpath, keypath),
             Postbox(postboxdir, quotasize, accessfile), useraliases,
-            Friendship(pad_url,pad_user,pad_password), url_list)
+            Friendship(pad_url,pad_user,pad_password), url_list,
+            cmdaliases)
 
     sig = Signalhandler(factory)
     reactor.addSystemEventTrigger('before', 'shutdown', sig.savestates)
