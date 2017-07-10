@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+import time
 
 class HQ(object):
 
@@ -13,6 +14,7 @@ class HQ(object):
         self.joined_keys = []
         self.status = None
         self.fpath = fpath
+        self.prejoined_users = {}
 
         if os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
             with open(fpath, 'r') as userfile:
@@ -54,6 +56,7 @@ class HQ(object):
         self.keys_in_hq = 0
         del(self.joined_users[:])
         del(self.joined_keys[:])
+        self.prejoined_users = {}
         self.status.setStatus('closed')
 
     def hq_private(self):
@@ -72,6 +75,8 @@ class HQ(object):
     def hq_join(self,user):
         self.people_in_hq += 1
         self.joined_users.append(user)
+        if user in self.prejoined_users:
+            self.hq_prejoinstop(user)
         self.savestates()
 
     def hq_leave(self,user):
@@ -103,3 +108,17 @@ class HQ(object):
         for user in set(self.joined_users):
             userfile.write("%s\n" % user)
         userfile.close()
+
+    def hq_prejoin(self, user, toa):
+        # toa = time of arrival
+        ts = int(time.time())
+        self.prejoined_users[user] = ts + (int(toa) * 60)
+
+    def hq_prejoinstop(self, user):
+        self.prejoined_users.pop(user, None)
+
+    def hq_prejoincheck(self):
+        if len(self.prejoined_users) > 0:
+            for user, ts in self.prejoined_users.iteritems():
+                if ts <= int(time.time()):
+                    self.hq_prejoinstop(user)

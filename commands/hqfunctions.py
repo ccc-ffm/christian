@@ -1,6 +1,8 @@
 """Class for setting HQ states"""
 from datetime import datetime
+import time
 import sys
+import re
 
 from modules import InternTopic
 
@@ -23,6 +25,7 @@ class HQFunctions(object):
         """
         Join users to HQ, update the status
         """
+        hq.hq_prejoincheck()
         #Open HQ for members if it is closed
         if hq.hq_status is 'closed' or hq.hq_status is 'unknown':
             self.private(channel, callback, msg, nck, hq, keys)
@@ -44,6 +47,7 @@ class HQFunctions(object):
         """
         Leave person from HQ, update the status
         """
+        hq.hq_prejoincheck()
         if len(msg) == 0:
             msg.append(nck)
 
@@ -80,20 +84,28 @@ class HQFunctions(object):
         """
         List all persons in the hq
         """
-
+        hq.hq_prejoincheck()
         if hq.people_in_hq == 0:
             callback.msg(channel,'No one is here')
         else:
             userset = set(hq.joined_users)
+            userset = ', '.join(userset)
             if hq.people_in_hq == 1:
-                callback.msg(channel,'%s is here.' %', '.join(userset))
+                callback.msg(channel,'%s is here.' % userset)
             else:
-                callback.msg(channel,'%s are here.' %', '.join(userset))
-
+                callback.msg(channel,'%s are here.' % userset)
+        if len(hq.prejoined_users) > 0:
+            prelist = []
+            for user,ts in hq.prejoined_users.iteritems():
+                prelist.append('{0} will arrive at {1}'.format(user, time.strftime('%H:%M', time.localtime(ts))))
+            prelist = ', '.join(prelist)
+            callback.msg(channel, prelist+'.')
+            
     def open(self, channel, callback, msg=None, nck=None, hq=None, keys=None, **kwargs):
         """
         Opens the HQ
         """
+        hq.hq_prejoincheck()
         #If HQ is not open, open it and set topic
         if hq.hq_status is not 'open':
             hq.hq_open()
@@ -112,6 +124,7 @@ class HQFunctions(object):
         """
         Open the HQ for members only
         """
+        hq.hq_prejoincheck()
         if hq.hq_status is not 'private':
             hq.hq_private()
             topic = InternTopic()
@@ -129,6 +142,7 @@ class HQFunctions(object):
         Change HQ status to closed
         Update topic
         """
+        hq.hq_prejoincheck()
         if hq.hq_status is not 'closed':
             hq.hq_close()
             topic = InternTopic()
@@ -137,9 +151,35 @@ class HQFunctions(object):
             callback.say(channel, 'The HQ is already closed since {}'.format(hq.status_since))
 
     def dirty(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
+        hq.hq_prejoincheck()
         hq.hq_dirty()
         callback.say(channel,'The HQ is dirty!')
 
     def clean(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
+        hq.hq_prejoincheck()
         hq.hq_clean()
         callback.say(channel,'The HQ is clean \o/')
+
+    def prejoin(self, channel, callback, msg=None, nck=None, hq=None, **kwargs):
+        """
+        Prejoins a user to the HQ.
+        """
+        hq.hq_prejoincheck()
+        if len(msg) != 1:
+            callback.say(channel, 'Try !prejoin <mm> or !prejoin stop to remove you from the list of prejoined users')
+        else:
+            arg = msg[0].strip()
+            if arg == 'stop':
+                if nck in hq.prejoined_users:
+                    hq.hq_prejoinstop(nck)
+                    callback.say(channel, '{0} is no longer on the list of prejoined members'.format(nck))
+                else:
+                    callback.say(channel, '{0} is not on the list of prejoined members'.format(nck))
+            elif nck in hq.joined_users:
+                callback.say(channel, '{0} is already here'.format(nck))
+            else:
+                if re.match('^\d{1,2}$', arg):
+                    hq.hq_prejoin(nck, arg)
+                    callback.say(channel, '{0} will be here around {1}'.format(nck, time.strftime('%H:%M', time.localtime(hq.prejoined_users[nck]))))
+                else:
+                    callback.say(channel, 'Sorry, but I do not understand. Try !prejoin <minutes>')
