@@ -9,12 +9,14 @@ LOG = BotLog()
 class Status(object):
 
     timestamp = 0
+    ratelimit_timestamp = 0
     status_counter = 0
 
     def __init__(self):
         self.callback = None
         self.status = self.bunteslicht_s = self.sound_s = self.switch_s = self.ambientlight_s = self.power_s = "unknown"
         self.timestamp = 0
+        self.ratelimit_timestamp = 0
         self.status_counter = 0
     
     def connect(self, host, port, usessl, cafile, topic, user, password,
@@ -57,19 +59,28 @@ class Status(object):
 
     def on_message(self, client, userdata, msg):
         LOG.debug("Received message from mqtt-broker: " + msg.topic + " " + msg.payload)
-        seconds = int(time() - self.timestamp)
+        ratelimit_time = 20
+        ratelimit_count = 5
+        minimum_delay = 2
         if msg.topic == self.topic:
             self.status_counter += 1
-            if not self.timestamp or (seconds > 60 or self.status_counter < 5):
-                if seconds > 60:
+            seconds = int(time() - self.timestamp)
+            ratelimit_seconds = int(time() - self.ratelimit_timestamp)
+            if not self.ratelimit_timestamp or (ratelimit_seconds > ratelimit_time or self.status_counter < ratelimit_count):
+                if ratelimit_seconds > ratelimit_time:
                     self.status_counter = 0
-                self.timestamp = time()
-                if not msg.payload == self.status:
-                    self.status = msg.payload
-                    if self.callback:
-                        self.callback(self.status)
+                    self.ratelimit_timestamp = 0
+                if not seconds or seconds > minimum_delay:
+                    self.ratelimit_timestamp = time()
+                    if not msg.payload == self.status:
+                        self.status = msg.payload
+                        if self.callback:
+                            self.callback(self.status)
+                else:
+                    LOG.log("warning", "Ignoring mqtt status update, last message received " + str(seconds) + " seconds ago (Minimum delay not reached)")
             else:
-                LOG.log("warning", "Ignoring mqtt status update, received " + str(self.status_counter) + " messages in the last " + str(seconds) + " seconds")
+                LOG.log("warning", "Ignoring mqtt status update, received " + str(self.status_counter) + " messages, waiting time is " + str(ratelimit_time - ratelimit_seconds) + " seconds (Ratelimit)")
+            self.timestamp = time()
         elif msg.topic == self.bunteslicht:
             if not msg.payload == self.bunteslicht_s:
                 self.bunteslicht_s = msg.payload
