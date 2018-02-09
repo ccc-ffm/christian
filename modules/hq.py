@@ -33,33 +33,36 @@ class HQ(object):
 
     def hq_set(self, status):
         if status == "open":
-            self.hq_open()
+            self.hq_open(False)
         elif status == "closed":
-            self.hq_close()
+            self.hq_close(False)
         elif status == "private":
-            self.hq_private()
+            self.hq_private(False)
 
     def update_time(self):
         self.status_since = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-    def hq_open(self):
+    def hq_open(self, setStatus=True):
         self.hq_status = 'open'
         self.update_time()
-        self.status.setStatus('open')
+        if setStatus:
+            self.status.setStatus('open')
 
-    def hq_close(self):
+    def hq_close(self, setStatus=True):
         self.hq_status = 'closed'
         self.update_time()
         self.people_in_hq = 0
         self.keys_in_hq = 0
         del(self.joined_users[:])
         del(self.joined_keys[:])
-        self.status.setStatus('closed')
+        if setStatus:
+            self.status.setStatus('closed')
 
-    def hq_private(self):
+    def hq_private(self, setStatus=True):
         self.hq_status = 'private'
         self.update_time()
-        self.status.setStatus('private')
+        if setStatus:
+            self.status.setStatus('private')
 
     def hq_clean(self):
         self.is_clean = True
