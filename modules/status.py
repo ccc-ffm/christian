@@ -2,14 +2,20 @@ import paho.mqtt.client as mqtt
 import ssl
 
 from utils import BotLog
+from time import time
 
 LOG = BotLog()
 
 class Status(object):
 
+    timestamp = 0
+    status_counter = 0
+
     def __init__(self):
         self.callback = None
         self.status = self.bunteslicht_s = self.sound_s = self.switch_s = self.ambientlight_s = self.power_s = "unknown"
+        self.timestamp = 0
+        self.status_counter = 0
     
     def connect(self, host, port, usessl, cafile, topic, user, password,
             identity, bunteslicht, sound, switch, ambientlight, power):
@@ -28,10 +34,10 @@ class Status(object):
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         if usessl:
-            # Don't verify hostname (Fix This!)
-            self.client.tls_insecure_set(True)
             self.client.tls_set(cafile, certfile=None, keyfile=None, cert_reqs=ssl.CERT_REQUIRED,
                         tls_version=ssl.PROTOCOL_TLSv1_2, ciphers=None)
+            # Don't verify hostname (Fix This!)
+            self.client.tls_insecure_set(True)
         self.client.username_pw_set(self.user, self.password)
         self.client.connect(self.host, self.port, 60)
         self.client.loop_start()
@@ -51,11 +57,19 @@ class Status(object):
 
     def on_message(self, client, userdata, msg):
         LOG.debug("Received message from mqtt-broker: " + msg.topic + " " + msg.payload)
+        seconds = int(time() - self.timestamp)
         if msg.topic == self.topic:
-            if not msg.payload == self.status:
-                self.status = msg.payload
-                if self.callback:
-                    self.callback(self.status)
+            self.status_counter += 1
+            if not self.timestamp or (seconds > 60 or self.status_counter < 5):
+                if seconds > 60:
+                    self.status_counter = 0
+                self.timestamp = time()
+                if not msg.payload == self.status:
+                    self.status = msg.payload
+                    if self.callback:
+                        self.callback(self.status)
+            else:
+                LOG.log("warning", "Ignoring mqtt status update, received " + str(self.status_counter) + " messages in the last " + str(seconds) + " seconds")
         elif msg.topic == self.bunteslicht:
             if not msg.payload == self.bunteslicht_s:
                 self.bunteslicht_s = msg.payload

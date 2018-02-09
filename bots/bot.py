@@ -79,8 +79,8 @@ class Bot(irc.IRCClient):
                     f.MQTT_topic, f.MQTT_user, f.MQTT_pass, f.MQTT_id,
                     f.MQTT_bunteslicht, f.MQTT_sound, f.MQTT_switch,
                     f.MQTT_ambientlight, f.MQTT_power)
-        except:
-            LOG.log("warning", "failed connecting to MQTT broker.")
+        except Exception as e:
+            LOG.log("warning", "failed connecting to MQTT broker: " + str(e))
 
         self.aliases = {}
         with open(self.factory.useraliases, "r") as filea:
