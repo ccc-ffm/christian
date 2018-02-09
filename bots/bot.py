@@ -271,6 +271,7 @@ class Bot(irc.IRCClient):
         for alias, nickname in self.aliases.items():
             message = re.sub(alias, nickname, message)
 
+        message = message.strip()
         msg = message.split(" ")
 
         #replace cmd aliases with the actual command
