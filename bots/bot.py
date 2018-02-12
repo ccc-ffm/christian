@@ -53,13 +53,14 @@ class Bot(irc.IRCClient):
         self.intern_access = []
         self.status.callback = self.updateStatus
 
-    def updateStatus(self, status):
+    def updateStatus(self, status, updateTopic=True):
         LOG.debug("update status: " + status)
         self.hq.hq_set(status)
-        for channel in self.factory.channel:
-            if 'HQFunctions' in self.factory.channel[channel]:
-                LOG.debug("set topic on channel " + channel)
-                self.topicUpdated("mqtt", "#" + channel, status)
+        if updateTopic:
+            for channel in self.factory.channel:
+                if 'HQFunctions' in self.factory.channel[channel]:
+                    LOG.debug("set topic on channel " + channel)
+                    self.topicUpdated("mqtt", "#" + channel, status)
 
     def connectionMade(self):
         self.keys = self.factory.keys

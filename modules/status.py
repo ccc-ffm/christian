@@ -78,8 +78,14 @@ class Status(object):
                             self.callback(self.status)
                 else:
                     LOG.log("warning", "Ignoring mqtt status update, last message received " + str(seconds) + " seconds ago (Minimum delay not reached)")
+                    if not msg.payload == self.status and self.callback:
+                        self.status = msg.payload
+                        self.callback(self.status, False)
             else:
                 LOG.log("warning", "Ignoring mqtt status update, received " + str(self.status_counter) + " messages, waiting time is " + str(ratelimit_time - ratelimit_seconds) + " seconds (Ratelimit)")
+                if not msg.payload == self.status and self.callback:
+                    self.status = msg.payload
+                    self.callback(self.status, False)
             self.timestamp = time()
         elif msg.topic == self.bunteslicht:
             if not msg.payload == self.bunteslicht_s:
